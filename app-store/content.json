@@ -1,0 +1,25 @@
+{
+  "name": "Keygen Client",
+  "subtitle": "Licensing, connected",
+  "tagline": "Your licences. In hand.",
+  "publisher": "Axym Labs",
+  "bundle_id": "com.axymlabs.keygenapp",
+  "repository": "axymlabs/KeygenClient",
+  "locale": "en-GB",
+  "category": "Developer Tools",
+  "marketing_url": "https://axym.dev/apps",
+  "support_url": "https://axym.dev/apps#keygen-client-support",
+  "privacy_url": "https://axym.dev/apps#keygen-client-privacy",
+  "keywords": "licensing,licence,license,developer,server,keys,policies,products,machines",
+  "promotional_text": "Keep your licensing close. Connect to Keygen Cloud or your self-hosted server to manage licences, policies, products, machines and users.",
+  "description": "Your licences. In hand.\n\nKeygen Client brings your Keygen licensing server to your iPhone, iPad and Mac. Connect with your admin account or API token and work with the resources your account can access.\n\n• See licence activity, expiry trends and your resource inventory.\n• Browse and manage licences, policies and products.\n• Work with machines and users.\n• Create reusable licence-file formats.\n• Share licence files and QR codes. Check out server-signed files when your policy supports signing.\n• Switch seamlessly between light and dark appearances.\n\nExplore the app immediately with built-in sample data. To manage a live server, an existing Keygen Cloud or self-hosted account and a network connection are required. Available actions depend on your account permissions and server configuration.\n\nAn independent client; not affiliated with or endorsed by Keygen.",
+  "release_notes": "Meet Keygen Client: your licensing workspace for iPhone, iPad and Mac. Explore the dashboard, manage your server resources, and share licence files or QR codes. Try the built-in sample workspace before connecting your own server.",
+  "review_notes": "Choose ‘Explore with sample data’ on the connection screen to open an in-memory sample workspace. No login or network access is required for the sample workspace. Use the dashboard, Licences, Policies, Products and More to explore. A dedicated reviewer server/account must be supplied separately to verify real authentication and server-signed licence checkout. No account creation or purchases are offered in this app.",
+  "scenes": [
+    {"id":"dashboard", "title":"Everything in view.", "subtitle":"Licence activity, expiry trends and your inventory.", "label":"YOUR LICENSING WORKSPACE", "seconds":5},
+    {"id":"licences", "title":"Stay ahead of expiry.", "subtitle":"Find the right licence. See what needs attention.", "label":"CLARITY AT A GLANCE", "seconds":4},
+    {"id":"detail", "title":"The details, beautifully clear.", "subtitle":"Keys, policies and metadata, all within reach.", "label":"BUILT FOR YOUR WORKFLOW", "seconds":4},
+    {"id":"share", "title":"From key to QR.", "subtitle":"Share a licence file or a scannable code in moments.", "label":"SHARE WITH CONFIDENCE", "seconds":4},
+    {"id":"products", "title":"One place. Your products.", "subtitle":"Bring your licensing catalogue together.", "label":"CONNECTED TO YOUR SERVER", "seconds":4}
+  ]
+}
