@@ -32,6 +32,10 @@ class _ShareLicensePageState extends State<ShareLicensePage> {
   String? _signedError;
   bool _loadingSigned = false;
 
+  /// Extension typed by the user; null means use the format's default.
+  String? _extOverride;
+  String? _extFor;
+
   Resource get license => widget.license;
 
   Future<void> _loadSigned() async {
@@ -49,6 +53,11 @@ class _ShareLicensePageState extends State<ShareLicensePage> {
     } finally {
       if (mounted) setState(() => _loadingSigned = false);
     }
+  }
+
+  String? _cleanExt(String? v) {
+    final e = v?.replaceAll(RegExp(r'[^A-Za-z0-9]'), '');
+    return e == null || e.isEmpty ? null : e;
   }
 
   String _fileName(String ext) {
@@ -91,6 +100,14 @@ class _ShareLicensePageState extends State<ShareLicensePage> {
       fileText = template.render(license, api, pretty: true);
       ext = template.extension.isEmpty ? 'lic' : template.extension;
     }
+
+    // Reset the override when switching format so each keeps its own default.
+    final formatKey = signed ? _signedId : template?.id;
+    if (_extFor != formatKey) {
+      _extFor = formatKey;
+      _extOverride = null;
+    }
+    final fileExt = _cleanExt(_extOverride) ?? ext;
 
     return Scaffold(
       appBar: AppBar(
@@ -162,14 +179,7 @@ class _ShareLicensePageState extends State<ShareLicensePage> {
                   dataModuleStyle: const QrDataModuleStyle(
                       dataModuleShape: QrDataModuleShape.square,
                       color: Color(0xFF0B141E)),
-                  errorCorrectionLevel: qrData.length < 220
-                      ? QrErrorCorrectLevel.H
-                      : QrErrorCorrectLevel.M,
-                  embeddedImage: qrData.length < 220
-                      ? const AssetImage('assets/brand/keygen-mark.png')
-                      : null,
-                  embeddedImageStyle:
-                      const QrEmbeddedImageStyle(size: Size(46, 46)),
+                  errorCorrectionLevel: QrErrorCorrectLevel.M,
                   errorStateBuilder: (_, __) => const SizedBox(
                     width: 260,
                     height: 260,
@@ -192,13 +202,31 @@ class _ShareLicensePageState extends State<ShareLicensePage> {
               ),
             ),
             const SizedBox(height: 16),
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              for (final e in {ext, 'lic', 'json', 'txt', 'key'})
+                ChoiceChip(
+                  label: Text('.$e'),
+                  selected: fileExt == e,
+                  onSelected: (_) => setState(() => _extOverride = e),
+                ),
+            ]),
+            const SizedBox(height: 8),
+            TextFormField(
+              key: ValueKey('ext-$formatKey'),
+              initialValue: fileExt,
+              decoration: const InputDecoration(
+                  labelText: 'File type', prefixText: '.'),
+              autocorrect: false,
+              onChanged: (v) => setState(() => _extOverride = v),
+            ),
+            const SizedBox(height: 16),
             Row(children: [
               Expanded(
                 child: Builder(
                   builder: (btnContext) => FilledButton.icon(
                     icon: const Icon(Icons.ios_share),
                     label: const Text('Share file'),
-                    onPressed: () => _shareFile(fileText!, ext, btnContext),
+                    onPressed: () => _shareFile(fileText!, fileExt, btnContext),
                   ),
                 ),
               ),

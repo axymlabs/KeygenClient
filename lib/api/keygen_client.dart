@@ -267,7 +267,7 @@ class KeygenClient {
   /// Checks out a cryptographically signed license file. Requires the
   /// license's policy to use a signing scheme.
   Future<String> checkoutLicenseFile(String licenseId) async {
-    final json = await _send('POST', 'licenses/$licenseId/actions/check-out');
+    final json = await _send('GET', 'licenses/$licenseId/actions/check-out');
     final cert = (json['data'] as Map?)?['attributes']?['certificate'];
     if (cert is! String) {
       throw ApiException('The server did not return a license file.');

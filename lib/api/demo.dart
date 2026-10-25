@@ -82,20 +82,23 @@ http.Client demoHttpClient() {
           ((jsonDecode(req.body) as Map)['data'] as Map)['attributes'] as Map;
       (item['attributes'] as Map).addAll(attrs.cast<String, dynamic>());
     }
+    if (path.length == 4 && path[3] == 'check-out' && req.method == 'GET') {
+      return ok({
+        'data': {
+          'attributes': {
+            'certificate':
+                '-----BEGIN LICENSE FILE-----\ndemo\n-----END LICENSE FILE-----'
+          }
+        }
+      });
+    }
     if (req.method == 'POST' && path.length == 4) {
       final action = path[3];
       final a = item['attributes'] as Map;
       if (action == 'suspend') a['status'] = 'SUSPENDED';
       if (action == 'reinstate') a['status'] = 'ACTIVE';
-      if (action == 'check-out') {
-        return ok({
-          'data': {
-            'attributes': {
-              'certificate':
-                  '-----BEGIN LICENSE FILE-----\ndemo\n-----END LICENSE FILE-----'
-            }
-          }
-        });
+      if (action == 'check-in') {
+        a['lastCheckIn'] = DateTime.now().toUtc().toIso8601String();
       }
     }
     return ok({'data': item});

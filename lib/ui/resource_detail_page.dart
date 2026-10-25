@@ -166,7 +166,10 @@ class _ResourceDetailPageState extends State<ResourceDetailPage> {
     final t = Theme.of(context);
     final cs = t.colorScheme;
     final isLicense = kind.path == 'licenses';
-    final skip = {'metadata', if (isLicense) 'key', if (isLicense) 'status'};
+    final skip = {
+      'metadata',
+      if (isLicense) ...['key', 'status', 'lastCheckIn', 'nextCheckIn'],
+    };
     final attrs = _r.attributes.entries
         .where((e) =>
             !skip.contains(e.key) &&
@@ -262,6 +265,17 @@ class _ResourceDetailPageState extends State<ResourceDetailPage> {
                 ],
                 const SectionHeader('Details'),
                 RowsPanel([
+                  if (isLicense) ...[
+                    DataRow2(
+                        'Last check-in',
+                        _r.str('lastCheckIn') == null
+                            ? 'Never'
+                            : formatValue(
+                                'lastCheckIn', _r.str('lastCheckIn'))),
+                    if (_r.str('nextCheckIn') != null)
+                      DataRow2('Next check-in due',
+                          formatValue('nextCheckIn', _r.str('nextCheckIn'))),
+                  ],
                   for (final e in attrs)
                     DataRow2(humanize(e.key), formatValue(e.key, e.value),
                         mono: e.value is num ||
