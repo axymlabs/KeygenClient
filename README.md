@@ -4,6 +4,16 @@ A Flutter client for Keygen Cloud and self-hosted licensing servers, with iPhone
 
 An independent client; not affiliated with or endorsed by Keygen.
 
+## Public source and community review
+
+[This repository is intentionally public](https://github.com/axymlabs/KeygenClient). Keygen Client handles sensitive licensing operations, so users and contributors should be able to inspect how it authenticates, stores credentials, changes server resources and shares licence data. Code review, bug reports and pull requests from the community are welcome.
+
+The security of a licensing system must come from server-enforced authentication and permissions, private credentials and private signing keys. It must not depend on keeping this client's implementation secret. Public source makes inspection possible; it does not establish that the app has received an independent security audit.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development and review guidance, and [SECURITY.md](SECURITY.md) to report a vulnerability privately. Use fictional sample data in public issues, screenshots and test cases. Never publish live API tokens, passwords, customer records or private signing material.
+
+The repository currently has no project-wide software licence. Public visibility should not be interpreted as an open-source licence or a grant of broader reuse rights. Dependency licences remain applicable to their respective components. See [GitHub's licensing guidance](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository).
+
 ## Development
 
 ```sh

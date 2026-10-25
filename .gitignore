@@ -54,6 +54,17 @@ app.*.map.json
 *.provisionprofile
 *.xcarchive/
 
+# Credentials and private signing material must stay outside this public repo.
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.p8
+*.pfx
+*.key
+*.pem
+.aws/
+
 # Regenerated release marketing output (attached to GitHub Releases)
 /app-store/generated/
 **/__pycache__/
