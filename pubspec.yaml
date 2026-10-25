@@ -1,7 +1,7 @@
 name: keygen_app
 description: A native-feeling client for managing a Keygen licensing server.
 publish_to: none
-version: 1.0.2+3
+version: 1.0.3+4
 
 environment:
   sdk: ^3.5.0

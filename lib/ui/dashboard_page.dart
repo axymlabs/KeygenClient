@@ -9,6 +9,7 @@ import '../theme.dart';
 import 'resource_detail_page.dart';
 import 'resource_list_page.dart';
 import 'charts.dart';
+import 'device_activity_panel.dart';
 import 'util.dart';
 import 'widgets.dart';
 
@@ -165,6 +166,8 @@ class _DashboardPageState extends State<DashboardPage> {
       r(_Hero(d, statusCounts)),
       const SizedBox(height: 12),
       r(_Attention(statusCounts, onTap: () => widget.onOpenTab(1))),
+      r(const SectionHeader('Device activity')),
+      r(const DeviceActivityPanel()),
       r(const SectionHeader('Inventory')),
       r(SizedBox(
         height: 124,
@@ -340,7 +343,7 @@ class _Attention extends StatelessWidget {
         child: Row(children: [
           Icon(Icons.check_circle_rounded, color: Color(0xFF34C759)),
           SizedBox(width: 12),
-          Expanded(child: Text('All clear. Nothing needs your attention.')),
+          Expanded(child: Text('No licence status alerts.')),
         ]),
       );
     }
