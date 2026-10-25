@@ -84,198 +84,238 @@ class _ConnectScreenState extends State<ConnectScreen> {
         onPressed: () => setState(() => _obscure = !_obscure),
       );
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _hero(BuildContext context, {required bool compact}) {
     final t = Theme.of(context);
     final cs = t.colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(children: [
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                    color: cs.primary.withValues(alpha: 0.35),
+                    blurRadius: 28,
+                    spreadRadius: -6),
+              ],
+            ),
+            child: const BrandMark(size: 56),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+              child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(AppBrand.name, style: t.textTheme.titleLarge),
+              const SizedBox(height: 4),
+              Text('LICENSING, CONNECTED',
+                  style: t.textTheme.labelSmall?.copyWith(
+                      color: cs.onSurfaceVariant, letterSpacing: 1.4)),
+            ],
+          )),
+        ]),
+        SizedBox(height: compact ? 20 : 40),
+        Text(AppBrand.tagline, style: t.textTheme.headlineMedium),
+        const SizedBox(height: 10),
+        Text(
+            'Connect to Keygen Cloud or your own server. Manage your licensing from one place.',
+            style:
+                t.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
+      ],
+    );
+  }
+
+  Widget _formFields(BuildContext context, {required bool compact}) {
+    final t = Theme.of(context);
+    final cs = t.colorScheme;
+    return Form(
+      key: _form,
+      child: AutofillGroup(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              controller: _url,
+              keyboardType: TextInputType.url,
+              autocorrect: false,
+              textInputAction: TextInputAction.next,
+              decoration: const InputDecoration(
+                  labelText: 'Server address',
+                  hintText: 'api.keygen.sh',
+                  helperText: 'Hostname or URL of your Keygen server'),
+              validator: _required,
+            ),
+            SizedBox(height: compact ? 6 : 12),
+            TextFormField(
+              controller: _account,
+              autocorrect: false,
+              textInputAction: TextInputAction.next,
+              decoration: const InputDecoration(
+                  labelText: 'Account ID or slug',
+                  helperText: 'Leave empty for single-account servers'),
+            ),
+            SizedBox(height: compact ? 16 : 24),
+            SegmentedButton<bool>(
+              segments: const [
+                ButtonSegment(value: false, label: Text('Email')),
+                ButtonSegment(value: true, label: Text('API token')),
+              ],
+              selected: {_useToken},
+              showSelectedIcon: false,
+              onSelectionChanged: (s) => setState(() => _useToken = s.first),
+            ),
+            SizedBox(height: compact ? 12 : 16),
+            if (_useToken)
+              TextFormField(
+                controller: _token,
+                autocorrect: false,
+                obscureText: _obscure,
+                decoration: InputDecoration(
+                    labelText: 'Admin token',
+                    helperText:
+                        'Create one under Tokens in your Keygen dashboard',
+                    suffixIcon: _eye()),
+                validator: _required,
+                onFieldSubmitted: (_) => _submit(),
+              )
+            else ...[
+              TextFormField(
+                controller: _email,
+                keyboardType: TextInputType.emailAddress,
+                autofillHints: const [
+                  AutofillHints.username,
+                  AutofillHints.email
+                ],
+                autocorrect: false,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                    labelText: 'Email',
+                    helperText: 'The admin account you sign in to Keygen with'),
+                validator: _required,
+              ),
+              SizedBox(height: compact ? 6 : 12),
+              TextFormField(
+                controller: _password,
+                obscureText: _obscure,
+                autofillHints: const [AutofillHints.password],
+                textInputAction: TextInputAction.done,
+                decoration: InputDecoration(
+                    labelText: 'Password',
+                    helperText: 'Never stored. Only the access token is kept',
+                    suffixIcon: _eye()),
+                validator: _required,
+                onFieldSubmitted: (_) => _submit(),
+              ),
+            ],
+            AnimatedSize(
+              duration: const Duration(milliseconds: 200),
+              child: _error == null
+                  ? const SizedBox(width: double.infinity)
+                  : Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.error_outline, size: 18, color: cs.error),
+                          const SizedBox(width: 8),
+                          Expanded(
+                              child: Text(_error!,
+                                  style: TextStyle(
+                                      color: cs.error, fontSize: 13))),
+                        ],
+                      ),
+                    ),
+            ),
+            SizedBox(height: compact ? 16 : 28),
+            FilledButton(
+              onPressed: _busy ? null : _submit,
+              style: FilledButton.styleFrom(
+                  minimumSize: Size.fromHeight(compact ? 46 : 52)),
+              child: _busy
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2.5, color: cs.onPrimary))
+                  : const Text('Connect'),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed:
+                  _busy ? null : () => context.read<Session>().startDemo(),
+              child: const Text('Explore with sample data'),
+            ),
+            SizedBox(height: compact ? 4 : 20),
+            TextButton(
+              onPressed: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => const AboutPage())),
+              child: const Text('About & privacy'),
+            ),
+            const AppVersion(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(children: [
         const Positioned.fill(child: Glow(height: 560)),
         SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: LayoutBuilder(builder: (context, box) {
+            final wide = box.maxWidth >= 760;
+            final compact = box.maxHeight < 760;
+            final pad = EdgeInsets.symmetric(
+                horizontal: wide ? 48 : 24, vertical: compact ? 8 : 32);
+            return SingleChildScrollView(
+              padding: pad,
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 400),
-                child: Form(
-                  key: _form,
-                  child: AutofillGroup(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: cs.primary.withValues(alpha: 0.35),
-                                    blurRadius: 28,
-                                    spreadRadius: -6),
-                              ],
-                            ),
-                            child: const BrandMark(size: 56),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                              child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                constraints:
+                    BoxConstraints(minHeight: box.maxHeight - pad.vertical),
+                child: Center(
+                  child: wide
+                      ? ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 960),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(AppBrand.name,
-                                  style: t.textTheme.titleLarge),
-                              const SizedBox(height: 4),
-                              Text('LICENSING, CONNECTED',
-                                  style: t.textTheme.labelSmall?.copyWith(
-                                      color: cs.onSurfaceVariant,
-                                      letterSpacing: 1.4)),
-                            ],
-                          )),
-                        ]),
-                        const SizedBox(height: 40),
-                        Text(AppBrand.tagline,
-                            style: t.textTheme.headlineMedium),
-                        const SizedBox(height: 10),
-                        Text(
-                            'Connect to Keygen Cloud or your own server. Manage your licensing from one place.',
-                            style: t.textTheme.bodyMedium
-                                ?.copyWith(color: cs.onSurfaceVariant)),
-                        const SizedBox(height: 32),
-                        TextFormField(
-                          controller: _url,
-                          keyboardType: TextInputType.url,
-                          autocorrect: false,
-                          textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                              labelText: 'Server address',
-                              hintText: 'api.keygen.sh',
-                              helperText:
-                                  'Hostname or URL of your Keygen server'),
-                          validator: _required,
-                        ),
-                        const SizedBox(height: 12),
-                        TextFormField(
-                          controller: _account,
-                          autocorrect: false,
-                          textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                              labelText: 'Account ID or slug',
-                              helperText:
-                                  'Leave empty for single-account servers'),
-                        ),
-                        const SizedBox(height: 24),
-                        SegmentedButton<bool>(
-                          segments: const [
-                            ButtonSegment(value: false, label: Text('Email')),
-                            ButtonSegment(
-                                value: true, label: Text('API token')),
-                          ],
-                          selected: {_useToken},
-                          showSelectedIcon: false,
-                          onSelectionChanged: (s) =>
-                              setState(() => _useToken = s.first),
-                        ),
-                        const SizedBox(height: 16),
-                        if (_useToken)
-                          TextFormField(
-                            controller: _token,
-                            autocorrect: false,
-                            obscureText: _obscure,
-                            decoration: InputDecoration(
-                                labelText: 'Admin token',
-                                helperText:
-                                    'Create one under Tokens in your Keygen dashboard',
-                                suffixIcon: _eye()),
-                            validator: _required,
-                            onFieldSubmitted: (_) => _submit(),
-                          )
-                        else ...[
-                          TextFormField(
-                            controller: _email,
-                            keyboardType: TextInputType.emailAddress,
-                            autofillHints: const [
-                              AutofillHints.username,
-                              AutofillHints.email
-                            ],
-                            autocorrect: false,
-                            textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                                labelText: 'Email',
-                                helperText:
-                                    'The admin account you sign in to Keygen with'),
-                            validator: _required,
-                          ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            controller: _password,
-                            obscureText: _obscure,
-                            autofillHints: const [AutofillHints.password],
-                            textInputAction: TextInputAction.done,
-                            decoration: InputDecoration(
-                                labelText: 'Password',
-                                helperText:
-                                    'Never stored. Only the access token is kept',
-                                suffixIcon: _eye()),
-                            validator: _required,
-                            onFieldSubmitted: (_) => _submit(),
-                          ),
-                        ],
-                        AnimatedSize(
-                          duration: const Duration(milliseconds: 200),
-                          child: _error == null
-                              ? const SizedBox(width: double.infinity)
-                              : Padding(
-                                  padding: const EdgeInsets.only(top: 16),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Icon(Icons.error_outline,
-                                          size: 18, color: cs.error),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                          child: Text(_error!,
-                                              style: TextStyle(
-                                                  color: cs.error,
-                                                  fontSize: 13))),
-                                    ],
-                                  ),
+                              Expanded(
+                                  child: Padding(
+                                padding: const EdgeInsets.only(right: 48),
+                                child: _hero(context, compact: compact),
+                              )),
+                              ConstrainedBox(
+                                constraints:
+                                    const BoxConstraints(maxWidth: 400),
+                                child: SizedBox(
+                                  width: 400,
+                                  child: _formFields(context, compact: compact),
                                 ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 400),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _hero(context, compact: compact),
+                              SizedBox(height: compact ? 20 : 32),
+                              _formFields(context, compact: compact),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 28),
-                        FilledButton(
-                          onPressed: _busy ? null : _submit,
-                          style: FilledButton.styleFrom(
-                              minimumSize: const Size.fromHeight(52)),
-                          child: _busy
-                              ? SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                      strokeWidth: 2.5, color: cs.onPrimary))
-                              : const Text('Connect'),
-                        ),
-                        const SizedBox(height: 8),
-                        TextButton(
-                          onPressed: _busy
-                              ? null
-                              : () => context.read<Session>().startDemo(),
-                          child: const Text('Explore with sample data'),
-                        ),
-                        const SizedBox(height: 20),
-                        TextButton(
-                          onPressed: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (_) => const AboutPage())),
-                          child: const Text('About & privacy'),
-                        ),
-                        const AppVersion(),
-                      ],
-                    ),
-                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          }),
         ),
       ]),
     );
