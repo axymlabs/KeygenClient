@@ -19,6 +19,12 @@
       "presentation": { "panel": "dedicated" }
     },
     {
+      "label": "Pub get",
+      "type": "shell",
+      "command": "flutter pub get",
+      "problemMatcher": []
+    },
+    {
       "label": "Analyze",
       "type": "shell",
       "command": "flutter analyze",
@@ -29,6 +35,43 @@
       "type": "shell",
       "command": "flutter test",
       "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Release: check metadata",
+      "type": "shell",
+      "command": "python3 tool/check_release.py --strict --config release.json",
+      "problemMatcher": []
+    },
+    {
+      "label": "Release: validate",
+      "dependsOn": ["Pub get", "Analyze", "Test", "Release: check metadata"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "Release: build iOS IPA",
+      "type": "shell",
+      "command": "flutter build ipa --release --dart-define-from-file=release.json --export-options-plist=ios/ExportOptions.plist && python3 tool/check_release.py --strict --config release.json --bundle build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app",
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated" }
+    },
+    {
+      "label": "Release: build macOS package",
+      "type": "shell",
+      "command": "flutter build macos --release --config-only --dart-define-from-file=release.json && xcodebuild -workspace macos/Runner.xcworkspace -scheme Runner -configuration Release -archivePath \"build/macos/archive/Keygen Client.xcarchive\" CODE_SIGNING_ALLOWED=NO archive && python3 tool/check_release.py --strict --config release.json --bundle \"build/macos/archive/Keygen Client.xcarchive/Products/Applications/Keygen Client.app\" && python3 tool/prepare_macos_archive.py \"build/macos/archive/Keygen Client.xcarchive\" && xcodebuild -exportArchive -archivePath \"build/macos/archive/Keygen Client.xcarchive\" -exportPath build/macos/store -exportOptionsPlist macos/ExportOptions.plist -allowProvisioningUpdates",
+      "problemMatcher": [],
+      "presentation": { "panel": "dedicated" }
+    },
+    {
+      "label": "Release: build all",
+      "dependsOn": [
+        "Release: validate",
+        "Release: build iOS IPA",
+        "Release: build macOS package"
+      ],
+      "dependsOrder": "sequence",
+      "group": "build",
       "problemMatcher": []
     }
   ],
