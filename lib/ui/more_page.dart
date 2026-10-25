@@ -63,7 +63,8 @@ class MorePage extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
           sliver: SliverList.list(children: [
             RowsPanel([
-              for (final k in ['machines', 'users'].map((e) => kinds[e]!))
+              for (final k in ['machines', 'users', 'entitlements']
+                  .map((e) => kinds[e]!))
                 nav(
                     k.icon,
                     k.plural,

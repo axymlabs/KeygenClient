@@ -96,6 +96,24 @@ const _meta = FieldSpec('metadata', 'Metadata', FieldType.metadata,
         'Your own key/value data attached to this record, e.g. customer_id or plan.');
 
 final Map<String, ResourceKind> kinds = {
+  'entitlements': ResourceKind(
+    path: 'entitlements',
+    singular: 'Entitlement',
+    plural: 'Entitlements',
+    icon: Icons.verified_outlined,
+    title: (r) => r.str('name') ?? r.str('code') ?? r.id,
+    subtitle: (r) => r.str('code') ?? '',
+    fields: const [
+      FieldSpec('name', 'Name', FieldType.text,
+          required: true,
+          helper: 'A feature your software can unlock, such as PDF export.'),
+      FieldSpec('code', 'Code', FieldType.text,
+          required: true,
+          helper:
+              'The unique code checked by your software, e.g. PDF_EXPORT. Changing a code in use can break validation.'),
+      _meta,
+    ],
+  ),
   'licenses': ResourceKind(
     path: 'licenses',
     singular: 'Licence',

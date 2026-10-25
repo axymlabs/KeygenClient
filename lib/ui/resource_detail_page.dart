@@ -5,6 +5,8 @@ import '../api/keygen_client.dart';
 import '../resources/kinds.dart';
 import '../state/session.dart';
 import 'resource_form_page.dart';
+import 'entitlements_page.dart';
+import 'machine_activity.dart';
 import 'share_license_page.dart';
 import '../theme.dart';
 import 'charts.dart';
@@ -58,9 +60,14 @@ class _ResourceDetailPageState extends State<ResourceDetailPage> {
   }
 
   Future<void> _delete() async {
-    final ok = await confirm(context,
-        '${kind.deleteLabel} ${kind.singular.toLowerCase()}?', kind.title(_r),
-        action: kind.deleteLabel, destructive: true);
+    final ok = await confirm(
+        context,
+        '${kind.deleteLabel} ${kind.singular.toLowerCase()}?',
+        kind.path == 'entitlements'
+            ? '${kind.title(_r)} will be deleted for every licence and policy using it. This may remove access to the feature.'
+            : kind.title(_r),
+        action: kind.deleteLabel,
+        destructive: true);
     if (!ok || !mounted) return;
     try {
       await _api.delete(kind.path, _r.id);
@@ -166,9 +173,18 @@ class _ResourceDetailPageState extends State<ResourceDetailPage> {
     final t = Theme.of(context);
     final cs = t.colorScheme;
     final isLicense = kind.path == 'licenses';
+    final isMachine = kind.path == 'machines';
     final skip = {
       'metadata',
       if (isLicense) ...['key', 'status', 'lastCheckIn', 'nextCheckIn'],
+      if (isMachine) ...[
+        'heartbeatStatus',
+        'requireHeartbeat',
+        'lastHeartbeat',
+        'nextHeartbeat',
+        'heartbeatDuration',
+        'lastCheckOut'
+      ],
     };
     final attrs = _r.attributes.entries
         .where((e) =>
@@ -180,7 +196,11 @@ class _ResourceDetailPageState extends State<ResourceDetailPage> {
     final meta = _r.metadata;
     final actions =
         kind.actions.where((a) => a.visible?.call(_r) ?? true).toList();
-    final status = isLicense ? _r.str('status') : null;
+    final status = isLicense
+        ? _r.str('status')
+        : isMachine
+            ? _r.str('heartbeatStatus')
+            : null;
     final licenseKey = isLicense ? _r.str('key') : null;
 
     return PopScope(
@@ -263,6 +283,26 @@ class _ResourceDetailPageState extends State<ResourceDetailPage> {
                       ),
                   ]),
                 ],
+                if (isLicense || kind.path == 'policies') ...[
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.verified_outlined),
+                    label: const Text('Manage entitlements'),
+                    onPressed: _busy
+                        ? null
+                        : () async {
+                            final changed = await Navigator.of(context)
+                                .push<Object?>(MaterialPageRoute(
+                                    builder: (_) => EntitlementsPage(
+                                        parent: _r, kind: kind)));
+                            if (changed != null && mounted) {
+                              _changed = true;
+                              await _reload();
+                            }
+                          },
+                  ),
+                ],
+                if (isMachine) MachineActivity(key: ObjectKey(_r), machine: _r),
                 const SectionHeader('Details'),
                 RowsPanel([
                   if (isLicense) ...[

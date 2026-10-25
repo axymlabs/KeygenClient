@@ -220,6 +220,48 @@ class KeygenClient {
     return Resource.fromJson(json['data'] as Map<String, dynamic>);
   }
 
+  /// Follow server pagination without sending credentials to a link's host.
+  /// Relationship collections use cursor pagination on newer Keygen servers.
+  Future<List<Resource>> listAll(String path) async {
+    final items = <Resource>[];
+    Map<String, String> query = {'page[number]': '1', 'page[size]': '100'};
+    final seen = <String>{};
+    while (true) {
+      final json = await _send('GET', path, query: query);
+      items.addAll((json['data'] as List? ?? [])
+          .map((e) => Resource.fromJson(e as Map<String, dynamic>)));
+      final next = (json['links'] as Map?)?['next'];
+      final href = next is Map ? next['href'] : next;
+      if (href == null) return items;
+      if (href is! String || !seen.add(href)) {
+        throw ApiException(
+            'The server returned invalid pagination. Try again.');
+      }
+      query = Uri.parse(href).queryParameters;
+      if (query.isEmpty) {
+        throw ApiException(
+            'The server returned invalid pagination. Try again.');
+      }
+    }
+  }
+
+  /// Attach/detach a named feature without deleting its definition or
+  /// replacing any of the parent's other entitlement relationships.
+  Future<void> setEntitlement(
+      String parentPath, String parentId, String entitlementId,
+      {required bool attached}) async {
+    if (parentPath != 'licenses' && parentPath != 'policies') {
+      throw ArgumentError.value(parentPath, 'parentPath');
+    }
+    await _send(attached ? 'POST' : 'DELETE',
+        '$parentPath/${Uri.encodeComponent(parentId)}/entitlements',
+        body: {
+          'data': [
+            {'type': 'entitlements', 'id': entitlementId}
+          ]
+        });
+  }
+
   Future<Resource> create(
     String path,
     String type,

@@ -94,9 +94,14 @@ class _ResourceListPageState extends State<ResourceListPage> {
   }
 
   Future<bool> _confirmDelete(Resource r) async {
-    final ok = await confirm(context,
-        '${kind.deleteLabel} ${kind.singular.toLowerCase()}?', kind.title(r),
-        action: kind.deleteLabel, destructive: true);
+    final ok = await confirm(
+        context,
+        '${kind.deleteLabel} ${kind.singular.toLowerCase()}?',
+        kind.path == 'entitlements'
+            ? '${kind.title(r)} will be deleted for every licence and policy using it. This may remove access to the feature.'
+            : kind.title(r),
+        action: kind.deleteLabel,
+        destructive: true);
     if (!ok || !mounted) return false;
     try {
       await context.read<Session>().api.delete(kind.path, r.id);
