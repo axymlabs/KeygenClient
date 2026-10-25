@@ -63,6 +63,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
             email: _email.text,
             password: _password.text);
       }
+      TextInput.finishAutofillContext();
       HapticFeedback.mediumImpact();
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -140,6 +141,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
             TextFormField(
               controller: _url,
               keyboardType: TextInputType.url,
+              autofillHints: const [AutofillHints.url],
               autocorrect: false,
               textInputAction: TextInputAction.next,
               decoration: const InputDecoration(
@@ -185,10 +187,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
               TextFormField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
-                autofillHints: const [
-                  AutofillHints.username,
-                  AutofillHints.email
-                ],
+                autofillHints: const [AutofillHints.username],
                 autocorrect: false,
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
