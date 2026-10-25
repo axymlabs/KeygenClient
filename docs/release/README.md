@@ -2,7 +2,7 @@
 
 The Mac app requires **macOS 14 Sonoma or later**, matching the current Xcode recommendation. Hardened runtime is enabled for all configurations.
 
-The app is prepared locally as **Keygen Client 1.0.0 (1)**. `pubspec.yaml` is the single version source: `version: marketing.version.number+build`. Export options disable automatic version/build renumbering so packaging preserves these values. The installed version displayed in the app comes from the native package, including any Flutter build overrides. Native app and test targets use Flutter's build variables. Use a monotonically increasing build number for every upload, across versions for the Mac app.
+The app is prepared locally as **Keygen Client 1.0.1 (2)**. `pubspec.yaml` is the single version source: `version: marketing.version.number+build`. Export options disable automatic version/build renumbering so packaging preserves these values. The installed version displayed in the app comes from the native package, including any Flutter build overrides. Native app and test targets use Flutter's build variables. Use a monotonically increasing build number for every upload, across versions for the Mac app.
 
 ## Prepared artifacts
 
@@ -11,7 +11,7 @@ The app is prepared locally as **Keygen Client 1.0.0 (1)**. `pubspec.yaml` is th
 - iOS archive: `build/ios/archive/Runner.xcarchive`
 - macOS archive: `build/macos/archive/Keygen Client.xcarchive` (prepared archive; exporter applies distribution signing)
 
-Both packages were exported locally using team `27K26BJN5H`, identifier `com.axymlabs.keygenapp` and version `1.0.0 (1)`. Neither has been uploaded. The public Keygen Client privacy/support sections on axym.dev still need publication. Store metadata, screenshots and physical-device testing also remain before submission.
+Both packages were exported locally using team `27K26BJN5H`, identifier `com.axymlabs.keygenapp` and version `1.0.1 (2)`. Neither has been uploaded. The public Keygen Client privacy/support sections on axym.dev still need publication. Store metadata, screenshots and physical-device testing also remain before submission.
 
 ## Required publisher configuration
 
