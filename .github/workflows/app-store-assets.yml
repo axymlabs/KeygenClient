@@ -1,0 +1,55 @@
+name: App Store marketing assets
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag matching pubspec.yaml (e.g. v1.0.0)
+        type: string
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: app-store-assets-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  generate-and-publish:
+    runs-on: macos-latest
+    timeout-minutes: 25
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Install video encoder
+        run: |
+          if ! command -v ffmpeg >/dev/null; then
+            brew install ffmpeg
+          fi
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+      - run: python3 -m unittest discover -s tool/app_store -p 'test_*.py'
+      - name: Generate screenshots, videos, metadata and gallery
+        run: python3 tool/app_store/generate.py --tag "$RELEASE_TAG"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-store-marketing
+          path: |
+            app-store/generated/*.zip
+            app-store/generated/*.sha256
+      - name: Publish to GitHub Release
+        run: python3 tool/app_store/publish.py --tag "$RELEASE_TAG"
