@@ -38,11 +38,84 @@ http.Client demoHttpClient() {
       return ok({
         'data': slice,
         'meta': {'count': items.length},
-        'links': {if (start + size < items.length) 'next': 'next'},
+        'links': {
+          if (start + size < items.length)
+            'next': req.url.replace(queryParameters: {
+              'page[number]': '${page + 1}',
+              'page[size]': '$size'
+            }).toString()
+        },
       });
+    }
+    if (req.method == 'POST' && path.length == 1) {
+      final data = (jsonDecode(req.body) as Map)['data'] as Map;
+      final item = <String, dynamic>{
+        'id': 'sample-${db.nextId++}',
+        'type': kind,
+        'attributes':
+            Map<String, dynamic>.from(data['attributes'] as Map? ?? {}),
+        'relationships':
+            Map<String, dynamic>.from(data['relationships'] as Map? ?? {}),
+      };
+      items.add(item);
+      return ok({'data': item}, 201);
     }
     final id = path[1];
     final item = items.firstWhere((e) => e['id'] == id, orElse: () => const {});
+    if (path.length == 3 &&
+        path[2] == 'entitlements' &&
+        (kind == 'licenses' || kind == 'policies') &&
+        item.isNotEmpty) {
+      final direct = db.entitlements.putIfAbsent('$kind/$id', () => <String>{});
+      final policyId =
+          ((item['relationships'] as Map?)?['policy'] as Map?)?['data']?['id'];
+      final inherited = kind == 'licenses'
+          ? db.entitlements['policies/$policyId'] ?? <String>{}
+          : <String>{};
+      if (req.method == 'POST' || req.method == 'DELETE') {
+        final data = (jsonDecode(req.body) as Map)['data'] as List;
+        final ids = data.map((e) => (e as Map)['id'] as String).toSet();
+        if (req.method == 'POST') {
+          if (ids.any((id) => direct.contains(id) || inherited.contains(id))) {
+            return ok({
+              'errors': [
+                {'detail': 'Entitlement is already attached.'}
+              ]
+            }, 422);
+          }
+          direct.addAll(ids);
+        } else {
+          if (ids.any(inherited.contains)) {
+            return ok({
+              'errors': [
+                {'detail': 'Manage inherited entitlements on the policy.'}
+              ]
+            }, 422);
+          }
+          direct.removeAll(ids);
+          return http.Response('', 204);
+        }
+      }
+      final effective = {...direct, ...inherited};
+      final related = db.tables['entitlements']!
+          .where((e) => effective.contains(e['id']))
+          .toList();
+      final q = req.url.queryParameters;
+      final size = int.tryParse(q['page[size]'] ?? '') ?? 25;
+      final page = int.tryParse(q['page[number]'] ?? '') ?? 1;
+      final start = (page - 1) * size;
+      return ok({
+        'data': related.skip(start).take(size).toList(),
+        'meta': {'count': related.length},
+        'links': {
+          if (start + size < related.length)
+            'next': req.url.replace(queryParameters: {
+              'page[number]': '${page + 1}',
+              'page[size]': '$size'
+            }).toString()
+        },
+      }, req.method == 'POST' ? 201 : 200);
+    }
     if (path.length == 3 && req.method == 'GET') {
       // Related collection: filter the child table by the parent relationship.
       final child = db.tables[path[2]] ?? [];
@@ -75,6 +148,11 @@ http.Client demoHttpClient() {
     }
     if (req.method == 'DELETE') {
       items.removeWhere((e) => e['id'] == id);
+      if (kind == 'entitlements') {
+        for (final assigned in db.entitlements.values) {
+          assigned.remove(id);
+        }
+      }
       return http.Response('', 204);
     }
     if (req.method == 'PATCH') {
@@ -82,20 +160,23 @@ http.Client demoHttpClient() {
           ((jsonDecode(req.body) as Map)['data'] as Map)['attributes'] as Map;
       (item['attributes'] as Map).addAll(attrs.cast<String, dynamic>());
     }
+    if (path.length == 4 && path[3] == 'check-out' && req.method == 'GET') {
+      return ok({
+        'data': {
+          'attributes': {
+            'certificate':
+                '-----BEGIN LICENSE FILE-----\ndemo\n-----END LICENSE FILE-----'
+          }
+        }
+      });
+    }
     if (req.method == 'POST' && path.length == 4) {
       final action = path[3];
       final a = item['attributes'] as Map;
       if (action == 'suspend') a['status'] = 'SUSPENDED';
       if (action == 'reinstate') a['status'] = 'ACTIVE';
-      if (action == 'check-out') {
-        return ok({
-          'data': {
-            'attributes': {
-              'certificate':
-                  '-----BEGIN LICENSE FILE-----\ndemo\n-----END LICENSE FILE-----'
-            }
-          }
-        });
+      if (action == 'check-in') {
+        a['lastCheckIn'] = DateTime.now().toUtc().toIso8601String();
       }
     }
     return ok({'data': item});
@@ -240,6 +321,12 @@ class _DemoDb {
         'expiry': expiry == null ? null : iso(expiry),
         'created': iso(created),
         'maxMachines': p['attributes']['maxMachines'],
+        'requireCheckIn': i % 3 != 0,
+        'lastCheckIn':
+            i % 3 == 0 ? null : iso(now.subtract(Duration(hours: i + 1))),
+        'nextCheckIn':
+            i % 3 == 0 ? null : iso(now.add(Duration(hours: 48 - i))),
+        'lastValidated': iso(now.subtract(Duration(minutes: 5 + i))),
         'metadata': {
           'plan': p['attributes']['name'],
           'seats': 1 + rnd.nextInt(5)
@@ -264,6 +351,19 @@ class _DemoDb {
           'platform': ['macOS', 'macOS', 'Linux', 'Windows', 'Linux'][i % 5],
           'ip': '10.0.${i % 6}.${20 + i}',
           'hostname': 'host-${i + 1}.local',
+          'requireHeartbeat': i % 4 != 0,
+          'heartbeatStatus': i % 4 == 0
+              ? 'NOT_STARTED'
+              : i % 4 == 3
+                  ? 'DEAD'
+                  : 'ALIVE',
+          'heartbeatDuration': 600,
+          'lastHeartbeat': i % 4 == 0
+              ? null
+              : iso(now.subtract(Duration(minutes: i % 4 == 3 ? 25 : 2))),
+          'nextHeartbeat': i % 4 == 0
+              ? null
+              : iso(now.add(Duration(minutes: i % 4 == 3 ? -15 : 8))),
         }, {
           'license': rel('licenses', licenses[i]['id'] as String)
         }),
@@ -274,11 +374,23 @@ class _DemoDb {
       'licenses': licenses,
       'users': users,
       'machines': machines,
+      'entitlements': [
+        res('entitlements', id('e1', 1),
+            {'name': 'PDF export', 'code': 'PDF_EXPORT'}),
+        res('entitlements', id('e1', 2),
+            {'name': 'Team workspace', 'code': 'TEAM_WORKSPACE'}),
+        res('entitlements', id('e1', 3),
+            {'name': 'Priority support', 'code': 'PRIORITY_SUPPORT'}),
+      ],
     };
+    entitlements['policies/${policies.first['id']}'] = {id('e1', 1)};
+    entitlements['licenses/${licenses.first['id']}'] = {id('e1', 3)};
     me = res('users', id('u1', 99),
         {'email': 'demo@keygen.example', 'firstName': 'Demo', 'role': 'admin'});
   }
 
   late final Map<String, List<Map<String, dynamic>>> tables;
   late final Map<String, dynamic> me;
+  int nextId = 1000;
+  final entitlements = <String, Set<String>>{};
 }

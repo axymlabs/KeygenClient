@@ -94,9 +94,14 @@ class _ResourceListPageState extends State<ResourceListPage> {
   }
 
   Future<bool> _confirmDelete(Resource r) async {
-    final ok = await confirm(context,
-        '${kind.deleteLabel} ${kind.singular.toLowerCase()}?', kind.title(r),
-        action: kind.deleteLabel, destructive: true);
+    final ok = await confirm(
+        context,
+        '${kind.deleteLabel} ${kind.singular.toLowerCase()}?',
+        kind.path == 'entitlements'
+            ? '${kind.title(r)} will be deleted for every licence and policy using it. This may remove access to the feature.'
+            : kind.title(r),
+        action: kind.deleteLabel,
+        destructive: true);
     if (!ok || !mounted) return false;
     try {
       await context.read<Session>().api.delete(kind.path, r.id);
@@ -154,6 +159,14 @@ class _ResourceListPageState extends State<ResourceListPage> {
         onTap: () => _open(r),
       ),
     );
+  }
+
+  /// Height of the bottom navigation bar this page sits behind, or 0 when the
+  /// page is pushed or the layout uses a side rail.
+  double _navClearance(BuildContext context) {
+    if (widget.pushed || MediaQuery.sizeOf(context).width >= 720) return 0;
+    final inset = MediaQueryData.fromView(View.of(context)).padding.bottom;
+    return 64 + inset;
   }
 
   @override
@@ -214,10 +227,15 @@ class _ResourceListPageState extends State<ResourceListPage> {
       controller: _scroll,
       onRefresh: _refresh,
       floatingActionButton: kind.canCreate
-          ? FloatingActionButton.extended(
-              onPressed: _create,
-              icon: const Icon(Icons.add),
-              label: Text('New ${kind.singular.toLowerCase()}'),
+          ? Padding(
+              // Tab pages sit behind the bottom navigation bar; lift the
+              // button clear of it.
+              padding: EdgeInsets.only(bottom: _navClearance(context)),
+              child: FloatingActionButton.extended(
+                onPressed: _create,
+                icon: const Icon(Icons.add),
+                label: Text('New ${kind.singular.toLowerCase()}'),
+              ),
             )
           : null,
       slivers: [
