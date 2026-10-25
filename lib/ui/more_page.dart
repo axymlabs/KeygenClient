@@ -60,7 +60,7 @@ class MorePage extends StatelessWidget {
       title: 'More',
       slivers: [
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
           sliver: SliverList.list(children: [
             RowsPanel([
               for (final k in ['machines', 'users'].map((e) => kinds[e]!))
