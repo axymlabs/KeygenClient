@@ -3,10 +3,12 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../resources/kinds.dart';
+import '../api/keygen_client.dart';
 import '../state/device_activity.dart';
 import '../state/session.dart';
 import 'resource_detail_page.dart';
 import 'widgets.dart';
+import 'heartbeat_chart.dart';
 
 class DeviceActivityPanel extends StatefulWidget {
   const DeviceActivityPanel({super.key});
@@ -28,27 +30,32 @@ class _DeviceActivityPanelState extends State<DeviceActivityPanel> {
         _future = DeviceActivity.load(context.read<Session>().api);
       });
 
-  void _open(DeviceActivity activity, bool heartbeat) {
+  void _open(DeviceActivity activity, bool heartbeat,
+      {List<Resource>? devices, String? heading}) {
     final ids =
         heartbeat ? activity.overdueHeartbeats : activity.overdueLicenceDevices;
-    final items = activity.machines.where((m) => ids.contains(m.id)).toList();
+    final items =
+        devices ?? activity.machines.where((m) => ids.contains(m.id)).toList();
     final kind = kinds['machines']!;
     Navigator.of(context).push(MaterialPageRoute(
         builder: (_) => Scaffold(
               appBar: AppBar(
-                  title: Text(heartbeat
-                      ? 'Overdue heartbeats'
-                      : 'Overdue licence check-ins')),
+                  title: Text(heading ??
+                      (heartbeat
+                          ? 'Overdue heartbeats'
+                          : 'Overdue licence check-ins'))),
               body: ListView(padding: const EdgeInsets.all(16), children: [
-                Text(heartbeat
-                    ? 'Machines whose heartbeat deadline has passed or whose server status is dead.'
-                    : 'Devices attached to licences with an overdue check-in. A check-in applies to the whole licence.'),
+                Text(devices != null
+                    ? 'Devices grouped by their latest server-reported heartbeat state.'
+                    : heartbeat
+                        ? 'Machines whose heartbeat deadline has passed or whose server status is dead.'
+                        : 'Devices attached to licences with an overdue check-in. A check-in applies to the whole licence.'),
                 const SizedBox(height: 12),
                 Text(
                     'As of ${DateFormat.yMMMd().add_jm().format(activity.checkedAt)}'),
                 const SizedBox(height: 16),
                 if (items.isEmpty)
-                  const Panel(child: Text('No overdue devices.'))
+                  const Panel(child: Text('No matching devices.'))
                 else
                   RowsPanel([
                     for (final m in items)
@@ -93,34 +100,35 @@ class _DeviceActivityPanelState extends State<DeviceActivityPanel> {
                 ]));
           }
           final data = snap.data!;
-          return RowsPanel([
-            ListTile(
-                leading: const Icon(Icons.schedule_outlined),
-                title: const Text('Devices on overdue licences'),
-                subtitle: const Text('Licence check-in deadline passed'),
-                trailing: Text('${data.overdueLicenceDevices.length}',
-                    style: Theme.of(context).textTheme.headlineSmall),
-                onTap: () => _open(data, false)),
-            ListTile(
-                leading: const Icon(Icons.monitor_heart_outlined),
-                title: const Text('Overdue device heartbeats'),
-                subtitle:
-                    const Text('Heartbeat deadline passed or reported dead'),
-                trailing: Text('${data.overdueHeartbeats.length}',
-                    style: Theme.of(context).textTheme.headlineSmall),
-                onTap: () => _open(data, true)),
-            Padding(
-                padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                          'Checked ${data.machines.length} devices at ${DateFormat.jm().format(data.checkedAt)}. Pull to refresh.'),
-                      if (data.missingLicenceLinks > 0)
-                        Text(
-                            '${data.missingLicenceLinks} devices have no readable licence; their check-in status is unknown.'),
-                    ])),
-          ]);
+          return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                HeartbeatChart(
+                    activity: data,
+                    onOpen: (devices, title) =>
+                        _open(data, true, devices: devices, heading: title)),
+                const SizedBox(height: 12),
+                RowsPanel([
+                  ListTile(
+                      leading: const Icon(Icons.schedule_outlined),
+                      title: const Text('Devices on overdue licences'),
+                      subtitle: const Text('Licence check-in deadline passed'),
+                      trailing: Text('${data.overdueLicenceDevices.length}',
+                          style: Theme.of(context).textTheme.headlineSmall),
+                      onTap: () => _open(data, false)),
+                  Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                'Checked ${data.machines.length} devices at ${DateFormat.jm().format(data.checkedAt)}. Pull to refresh.'),
+                            if (data.missingLicenceLinks > 0)
+                              Text(
+                                  '${data.missingLicenceLinks} devices have no readable licence; their check-in status is unknown.'),
+                          ])),
+                ]),
+              ]);
         },
       );
 }
