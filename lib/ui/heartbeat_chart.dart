@@ -90,7 +90,7 @@ class _HeartbeatChartState extends State<HeartbeatChart> {
         groups[HeartbeatGroup.notStarted]!.length;
     return Panel(
       glow: active?.color ?? cs.primary,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(14),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(children: [
           const Icon(Icons.monitor_heart_outlined, size: 20),
@@ -118,7 +118,7 @@ class _HeartbeatChartState extends State<HeartbeatChart> {
         Center(
             child: SizedBox(
           width: 224,
-          height: 224,
+          height: 176,
           child: LayoutBuilder(builder: (context, constraints) {
             final size = constraints.biggest;
             return MouseRegion(
@@ -187,7 +187,7 @@ class _HeartbeatChartState extends State<HeartbeatChart> {
             textAlign: TextAlign.center,
             style: theme.textTheme.bodySmall
                 ?.copyWith(color: cs.onSurfaceVariant)),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
         Wrap(spacing: 8, runSpacing: 8, children: [
           for (final group in HeartbeatGroup.values)
             Semantics(
@@ -212,7 +212,7 @@ class _HeartbeatChartState extends State<HeartbeatChart> {
                   )),
             ),
         ]),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 180),
           child: Text(

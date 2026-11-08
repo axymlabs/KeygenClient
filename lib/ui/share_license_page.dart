@@ -74,7 +74,8 @@ class _ShareLicensePageState extends State<ShareLicensePage> {
     final dir = await getTemporaryDirectory();
     final file = File('${dir.path}/${_fileName(ext)}');
     await file.writeAsString(content);
-    await Share.shareXFiles([XFile(file.path)], sharePositionOrigin: origin);
+    await SharePlus.instance.share(
+        ShareParams(files: [XFile(file.path)], sharePositionOrigin: origin));
   }
 
   @override

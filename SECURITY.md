@@ -1,10 +1,10 @@
 # Security policy
 
-Keygen Client is intentionally public so the community can inspect its handling of sensitive licensing operations. Independent review and reports of reproducible vulnerabilities are welcome. Public availability and passing automated checks are not an independent security audit or a guarantee of security.
+Licence Manager for Keygen is intentionally public so the community can inspect its handling of sensitive licensing operations. Independent review and reports of reproducible vulnerabilities are welcome. Public availability and passing automated checks are not an independent security audit or a guarantee of security.
 
 ## Report a vulnerability privately
 
-Use [GitHub private vulnerability reporting](https://github.com/axymlabs/KeygenClient/security/advisories/new). Private reporting is enabled for this repository. If the form is unavailable, contact **support@axym.dev** with the subject **Keygen Client security report**.
+Use [GitHub private vulnerability reporting](https://github.com/axymlabs/KeygenClient/security/advisories/new). Private reporting is enabled for this repository. If the form is unavailable, contact **support@axym.dev** with the subject **Licence Manager for Keygen security report**.
 
 Include the affected version or commit, platform, impact and a minimal reproduction using fictional data or disposable resources you control. For the initial report, omit live tokens, passwords, customer records, private licence-signing keys and Apple signing credentials. Coordinate any additional sensitive evidence privately with the maintainer. Please allow the issue to be assessed and a fix coordinated before publishing exploit details in an issue, pull request or release asset. No response-time commitment or bounty is implied by this policy.
 

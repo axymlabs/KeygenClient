@@ -1,4 +1,4 @@
-# Contributing to Keygen Client
+# Contributing to Licence Manager for Keygen
 
 This is an intentionally public project maintained by Axym Labs. Community contributions and independent code review are welcome, especially around the sensitive licensing operations the app performs. We want users to be able to understand and question what runs on their devices.
 

@@ -1,4 +1,4 @@
-# Keygen Client privacy policy — publication draft
+# Licence Manager for Keygen privacy policy — publication draft
 
 **Prepared for Axym Labs. Publication required:** add the section below to https://axym.dev/apps before submitting. Confirm the operator and service practices before publication. Intended privacy anchor: `keygen-client-privacy`; support anchor: `keygen-client-support`.
 
@@ -12,7 +12,7 @@ Effective date: set to the publication date.
 
 ## Data handling
 
-Keygen Client connects directly to the Keygen server selected by the user. Login credentials, access tokens and licensing requests are sent to that server to authenticate and perform the requested actions. The server operator handles the account information, licensing data and any server logs under its own policy. Axym Labs does not operate a licensing backend for this client. If Axym Labs later offers a server service for this app, this policy must be updated to describe it before that service is introduced.
+Licence Manager for Keygen connects directly to the Keygen server selected by the user. Login credentials, access tokens and licensing requests are sent to that server to authenticate and perform the requested actions. The server operator handles the account information, licensing data and any server logs under its own policy. Axym Labs does not operate a licensing backend for this client. If Axym Labs later offers a server service for this app, this policy must be updated to describe it before that service is introduced.
 
 The app contains no advertising or analytics SDKs. It does not send licensing data to a separate app-publisher backend.
 
@@ -32,7 +32,7 @@ Clipboard copies, previously shared files, backups and recipient copies must be 
 
 For privacy requests, contact privacy@axym.dev. Axym Labs can answer questions about the client; requests for data held by a chosen Keygen server must go to that server's operator.
 
-## Keygen Client support
+## Licence Manager for Keygen support
 
 Email support@axym.dev. Include your platform, the app version and build shown in About & privacy, and the steps to reproduce the issue. Do not send passwords, access tokens, licence keys or customer data.
 

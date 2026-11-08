@@ -382,8 +382,14 @@ final Map<String, ResourceKind> kinds = {
         r.str('name') ??
         r.str('hostname') ??
         _short(r.str('fingerprint') ?? r.id),
-    subtitle: (r) =>
-        [r.str('platform'), r.str('ip')].whereType<String>().join(' · '),
+    subtitle: (r) {
+      final beat = r.date('lastHeartbeat');
+      return [
+        r.str('platform'),
+        r.str('ip'),
+        if (beat != null) 'Heartbeat ${relativeDays(beat.toLocal())}',
+      ].whereType<String>().join(' · ');
+    },
     fields: const [
       FieldSpec('name', 'Name', FieldType.text,
           helper: 'A friendly name for this device.'),

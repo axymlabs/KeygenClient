@@ -1,4 +1,4 @@
-# Keygen Client
+# Licence Manager for Keygen
 
 A Flutter client for Keygen Cloud and self-hosted licensing servers, with iPhone, iPad, Mac and Android targets. Manage licences, policies, products, machines, users and entitlements, and share licence files or QR codes.
 
@@ -14,7 +14,7 @@ Use **More → Entitlements** to create, edit or delete feature definitions. Ope
 
 ## Public source and community review
 
-[This repository is intentionally public](https://github.com/axymlabs/KeygenClient). Keygen Client handles sensitive licensing operations, so users and contributors should be able to inspect how it authenticates, stores credentials, changes server resources and shares licence data. Code review, bug reports and pull requests from the community are welcome.
+[This repository is intentionally public](https://github.com/axymlabs/KeygenClient). Licence Manager for Keygen handles sensitive licensing operations, so users and contributors should be able to inspect how it authenticates, stores credentials, changes server resources and shares licence data. Code review, bug reports and pull requests from the community are welcome.
 
 The security of a licensing system must come from server-enforced authentication and permissions, private credentials and private signing keys. It must not depend on keeping this client's implementation secret. Public source makes inspection possible; it does not establish that the app has received an independent security audit.
 

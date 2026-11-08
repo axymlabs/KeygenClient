@@ -74,7 +74,7 @@ void main() {
     final rect = tester.getRect(find.byKey(const ValueKey('heartbeat-ring')));
     // About 229 degrees clockwise from the top: the middle of the overdue
     // segment (6 on time, then 2 overdue, out of 11 devices).
-    await tester.tapAt(rect.center + const Offset(-71, 62));
+    await tester.tapAt(rect.center + const Offset(-53, 46));
     await tester.pumpAndSettle();
     expect(find.text('View 2 devices'), findsOneWidget);
     expect(

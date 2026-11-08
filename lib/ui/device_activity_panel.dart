@@ -107,17 +107,18 @@ class _DeviceActivityPanelState extends State<DeviceActivityPanel> {
                     activity: data,
                     onOpen: (devices, title) =>
                         _open(data, true, devices: devices, heading: title)),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 RowsPanel([
                   ListTile(
+                      dense: true,
                       leading: const Icon(Icons.schedule_outlined),
                       title: const Text('Devices on overdue licences'),
                       subtitle: const Text('Licence check-in deadline passed'),
                       trailing: Text('${data.overdueLicenceDevices.length}',
-                          style: Theme.of(context).textTheme.headlineSmall),
+                          style: Theme.of(context).textTheme.titleLarge),
                       onTap: () => _open(data, false)),
                   Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
