@@ -60,7 +60,7 @@ void main() {
     await loadFont('MaterialIcons', ['$fontRoot/MaterialIcons-Regular.otf']);
     SharedPreferences.setMockInitialValues({});
     PackageInfo.setMockInitialValues(
-        appName: 'Keygen Client',
+        appName: 'Licence Manager for Keygen',
         packageName: 'com.axymlabs.keygenapp',
         version: plan['version'] as String,
         buildNumber: plan['build'] as String,

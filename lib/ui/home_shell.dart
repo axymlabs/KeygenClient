@@ -41,27 +41,44 @@ class _HomeShellState extends State<HomeShell> {
       (Icons.more_horiz, Icons.more_horiz, 'More'),
     ];
     final body = IndexedStack(index: _index, children: pages);
-    final wide = MediaQuery.sizeOf(context).width >= 720;
+    final size = MediaQuery.sizeOf(context);
+    // Use the rail when there is room beside the content, or when the screen
+    // is too short for a bottom bar (phones in landscape).
+    final wide = size.width >= 600 || size.width > size.height;
 
     if (wide) {
       return Scaffold(
         body: Row(children: [
-          NavigationRail(
-            leading: const Padding(
-              padding: EdgeInsets.only(top: 16, bottom: 24),
-              child:
-                  Tooltip(message: AppBrand.name, child: BrandMark(size: 40)),
+          // The rail scrolls when the window is short (landscape, split view)
+          // and keeps clear of the notch / home indicator.
+          SafeArea(
+            right: false,
+            child: LayoutBuilder(
+              builder: (context, c) => SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: c.maxHeight),
+                  child: IntrinsicHeight(
+                    child: NavigationRail(
+                      leading: const Padding(
+                        padding: EdgeInsets.only(top: 8, bottom: 16),
+                        child: Tooltip(
+                            message: AppBrand.name, child: BrandMark(size: 40)),
+                      ),
+                      selectedIndex: _index,
+                      onDestinationSelected: _go,
+                      labelType: NavigationRailLabelType.all,
+                      destinations: [
+                        for (final d in dests)
+                          NavigationRailDestination(
+                              icon: Icon(d.$1),
+                              selectedIcon: Icon(d.$2),
+                              label: Text(d.$3)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
-            selectedIndex: _index,
-            onDestinationSelected: _go,
-            labelType: NavigationRailLabelType.all,
-            destinations: [
-              for (final d in dests)
-                NavigationRailDestination(
-                    icon: Icon(d.$1),
-                    selectedIcon: Icon(d.$2),
-                    label: Text(d.$3)),
-            ],
           ),
           const VerticalDivider(width: 1),
           Expanded(child: body),

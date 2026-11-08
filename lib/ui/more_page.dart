@@ -6,6 +6,7 @@ import '../api/keygen_client.dart';
 import '../state/session.dart';
 import '../brand.dart';
 import 'about_page.dart';
+import 'license_checker_page.dart';
 import 'resource_list_page.dart';
 import 'template_pages.dart';
 import 'util.dart';
@@ -60,16 +61,22 @@ class MorePage extends StatelessWidget {
       title: 'More',
       slivers: [
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
           sliver: SliverList.list(children: [
             RowsPanel([
-              for (final k in ['machines', 'users'].map((e) => kinds[e]!))
+              for (final k in ['machines', 'users', 'entitlements']
+                  .map((e) => kinds[e]!))
                 nav(
                     k.icon,
                     k.plural,
                     null,
                     () => _open(
                         context, ResourceListPage(kind: k, pushed: true))),
+              nav(
+                  Icons.qr_code_scanner,
+                  'Licence checker',
+                  'Scan a QR code to see its licence',
+                  () => _open(context, const LicenseCheckerPage())),
               nav(
                   Icons.qr_code_2,
                   'Licence file formats',

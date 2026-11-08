@@ -80,7 +80,7 @@ if args.bundle:
     info = plistlib.loads(info_path.read_bytes())
     check(info.get('CFBundleShortVersionString') == name, 'Built app marketing version differs from pubspec.yaml')
     check(info.get('CFBundleVersion') == build, 'Built app build number differs from pubspec.yaml')
-    check(info.get('CFBundleDisplayName', info.get('CFBundleName')) == 'Keygen Client', 'Built app display name is inconsistent')
+    check(info.get('CFBundleDisplayName', info.get('CFBundleName')) == 'Licence Manager for Keygen', 'Built app display name is inconsistent')
     manifest_path = bundle / ('Contents/Resources/PrivacyInfo.xcprivacy' if (bundle / 'Contents').exists() else 'PrivacyInfo.xcprivacy')
     check(manifest_path.exists(), 'Built app is missing its privacy manifest')
     if (bundle / 'Contents').exists():
@@ -92,6 +92,6 @@ if args.bundle:
 
 if errors:
     raise SystemExit('\n'.join(f'ERROR: {error}' for error in errors))
-print(f'Release metadata verified: Keygen Client {name} ({build})' + ('; bundle checked' if args.bundle else ''))
+print(f'Release metadata verified: Licence Manager for Keygen {name} ({build})' + ('; bundle checked' if args.bundle else ''))
 if not args.strict:
     print('This checks local metadata only. Run --strict --config <release.json> before distribution.')

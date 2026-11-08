@@ -26,10 +26,10 @@ class Panel extends StatelessWidget {
   const Panel({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(16),
+    this.padding = const EdgeInsets.all(14),
     this.onTap,
     this.glow,
-    this.radius = 18,
+    this.radius = 16,
   });
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -151,7 +151,7 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(top: 28, bottom: 10),
+        padding: const EdgeInsets.only(top: 18, bottom: 8),
         child: Row(children: [
           Caps(title),
           const Spacer(),

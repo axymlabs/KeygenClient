@@ -38,4 +38,8 @@ To upload a locally generated kit to an existing release, check out its tag, reg
 python3 tool/app_store/publish.py --tag v1.0.0
 ```
 
-The publisher refuses assets whose source commit differs from the tag. The public privacy/support destinations in the metadata must contain the prepared Keygen Client content before an App Store submission.
+The publisher refuses assets whose source commit differs from the tag. The public privacy/support destinations in the metadata must contain the prepared Licence Manager for Keygen content before an App Store submission.
+
+## App Review evidence
+
+`review/<version>/` contains developer-supplied physical-device recordings and submission records. Keep these separate from generated promotional videos. For 1.0.4, `physical-device-original.mp4` preserves the supplied recording; `physical-device-demo.mp4` is the same 36.7-second footage transcoded to H.264 without audio for upload (about 6.1 MB). The recording starts on the dashboard and does not establish the installed app or iOS version.

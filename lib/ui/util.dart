@@ -24,10 +24,13 @@ String formatValue(String key, dynamic v) {
 Color statusColor(String? status, ColorScheme cs) {
   switch (status?.toUpperCase()) {
     case 'ACTIVE':
+    case 'ALIVE':
+    case 'RESURRECTED':
       return const Color(0xFF34C759);
     case 'EXPIRING':
       return const Color(0xFFFFB020);
     case 'EXPIRED':
+    case 'DEAD':
       return const Color(0xFFFF5C5C);
     case 'SUSPENDED':
       return const Color(0xFFFF9F0A);

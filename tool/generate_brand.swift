@@ -76,4 +76,4 @@ for (density, size) in [("mdpi", 48), ("hdpi", 72), ("xhdpi", 96), ("xxhdpi", 14
 for (suffix, size) in [("", 96), ("@2x", 192), ("@3x", 288)] {
     try write(render(size), "ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage\(suffix).png")
 }
-print("Generated Keygen Client app icons and launch artwork.")
+print("Generated Licence Manager for Keygen app icons and launch artwork.")

@@ -147,6 +147,15 @@ class _ResourceFormPageState extends State<ResourceFormPage> {
       }
     }
 
+    if (editing &&
+        kind.path == 'entitlements' &&
+        attrs['code'] != existing!.str('code')) {
+      final ok = await confirm(context, 'Change entitlement code?',
+          'Software using the old code may fail licence validation. Update your software before changing a code that is in use.',
+          action: 'Change code');
+      if (!ok || !mounted) return;
+    }
+
     setState(() {
       _saving = true;
       _error = null;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 abstract final class AppBrand {
-  static const name = 'Keygen Client';
+  static const name = 'Licence Manager for Keygen';
   static const tagline = 'Your licences. In hand.';
   static const privacyUrl = String.fromEnvironment('PRIVACY_POLICY_URL',
       defaultValue: 'https://axym.dev/apps#keygen-client-privacy');

@@ -1,12 +1,20 @@
-# Keygen Client
+# Licence Manager for Keygen
 
-A Flutter client for Keygen Cloud and self-hosted licensing servers, with iPhone, iPad, Mac and Android targets. Manage licences, policies, products, machines and users, and share licence files or QR codes.
+A Flutter client for Keygen Cloud and self-hosted licensing servers, with iPhone, iPad, Mac and Android targets. Manage licences, policies, products, machines, users and entitlements, and share licence files or QR codes.
 
 An independent client; not affiliated with or endorsed by Keygen.
 
+## Machine activity and entitlements
+
+Open a machine to see its server-reported heartbeat status, last heartbeat and next deadline, plus check-in and validation times for its licence. Keygen check-ins are licence-wide: they do not identify which machine checked in. These views show the latest reported state, not a historical event log, and never send heartbeats or check-ins automatically. Pull to refresh for updated activity.
+
+The dashboard counts devices on licences with overdue check-ins and machines with overdue/dead heartbeats separately. Tap either count to inspect the affected devices. The scan follows all pages of visible machines and licences, rather than sampling the first 100. Devices with unreadable licences are marked as unknown; a failed scan displays an error rather than a zero count. Dead machines already removed by the server cannot appear in the current inventory.
+
+Use **More → Entitlements** to create, edit or delete feature definitions. Open a licence or policy and choose **Manage entitlements** to attach or detach features. Policy grants apply to all its licences; inherited grants are marked and must be changed on the policy. Changing a feature code or deleting a definition can affect existing validations. The server enforces your token's permissions; API errors are shown in the app. Sample mode supports these flows with fictional in-memory records.
+
 ## Public source and community review
 
-[This repository is intentionally public](https://github.com/axymlabs/KeygenClient). Keygen Client handles sensitive licensing operations, so users and contributors should be able to inspect how it authenticates, stores credentials, changes server resources and shares licence data. Code review, bug reports and pull requests from the community are welcome.
+[This repository is intentionally public](https://github.com/axymlabs/KeygenClient). Licence Manager for Keygen handles sensitive licensing operations, so users and contributors should be able to inspect how it authenticates, stores credentials, changes server resources and shares licence data. Code review, bug reports and pull requests from the community are welcome.
 
 The security of a licensing system must come from server-enforced authentication and permissions, private credentials and private signing keys. It must not depend on keeping this client's implementation secret. Public source makes inspection possible; it does not establish that the app has received an independent security audit.
 

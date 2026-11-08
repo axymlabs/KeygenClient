@@ -1,6 +1,6 @@
-# Keygen Client — App Store copy
+# Licence Manager for Keygen — App Store copy
 
-Name: **Keygen Client** (check availability and rights before registering)
+Name: **Licence Manager for Keygen** (check availability and rights before registering)
 
 Subtitle: **Licensing, connected**
 
@@ -14,7 +14,7 @@ Description:
 
 Your licences. In hand.
 
-Keygen Client brings your Keygen licensing server to your iPhone, iPad and Mac. Connect with your admin account or API token and work with the resources your account can access.
+Licence Manager for Keygen brings your Keygen licensing server to your iPhone, iPad and Mac. Connect with your admin account or API token and work with the resources your account can access.
 
 • Review licensing activity from your dashboard.
 • Browse and manage licences, policies and products.
@@ -33,7 +33,7 @@ licensing,licence,license,developer,server,keys,policies,products,machines
 
 Release notes for the first release:
 
-The first release of Keygen Client for managing your Keygen licensing server.
+The first release of Licence Manager for Keygen for managing your Keygen licensing server.
 
 ## Review notes to complete
 
@@ -45,4 +45,4 @@ The “Explore with sample data” button opens the app with in-memory example r
 
 Capture the actual app on supported iPhone, iPad and Mac sizes, using demo data. Include the dashboard, licence details and sharing flow. The repository's generated icon is ready; sign-in-only captures are not a complete screenshot set.
 
-Publisher: Axym Labs. Bundle identifier: `com.axymlabs.keygenapp`. Publish the prepared Keygen Client privacy/support sections at `https://axym.dev/apps#keygen-client-privacy` and `https://axym.dev/apps#keygen-client-support`, then use those URLs in App Store Connect. Supply the review contact, age-rating answers, availability, pricing and a privacy disclosure reflecting the actual operator and server setup. Verify accessibility claims on physical devices before selecting them in App Store Connect.
+Publisher: Axym Labs. Bundle identifier: `com.axymlabs.keygenapp`. Publish the prepared Licence Manager for Keygen privacy/support sections at `https://axym.dev/apps#keygen-client-privacy` and `https://axym.dev/apps#keygen-client-support`, then use those URLs in App Store Connect. Supply the review contact, age-rating answers, availability, pricing and a privacy disclosure reflecting the actual operator and server setup. Verify accessibility claims on physical devices before selecting them in App Store Connect.
