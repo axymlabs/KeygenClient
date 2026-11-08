@@ -2,16 +2,16 @@
 
 The Mac app requires **macOS 14 Sonoma or later**, matching the current Xcode recommendation. Hardened runtime is enabled for all configurations.
 
-The app is prepared locally as **Keygen Client 1.0.1 (2)**. `pubspec.yaml` is the single version source: `version: marketing.version.number+build`. Export options disable automatic version/build renumbering so packaging preserves these values. The installed version displayed in the app comes from the native package, including any Flutter build overrides. Native app and test targets use Flutter's build variables. Use a monotonically increasing build number for every upload, across versions for the Mac app.
+The app is prepared locally as **Licence Manager for Keygen 1.0.1 (2)**. `pubspec.yaml` is the single version source: `version: marketing.version.number+build`. Export options disable automatic version/build renumbering so packaging preserves these values. The installed version displayed in the app comes from the native package, including any Flutter build overrides. Native app and test targets use Flutter's build variables. Use a monotonically increasing build number for every upload, across versions for the Mac app.
 
 ## Prepared artifacts
 
-- iOS App Store IPA: `build/ios/ipa/Keygen Client.ipa`
-- macOS App Store installer: `build/macos/store/Keygen Client.pkg`
+- iOS App Store IPA: `build/ios/ipa/Licence Manager for Keygen.ipa`
+- macOS App Store installer: `build/macos/store/Licence Manager for Keygen.pkg`
 - iOS archive: `build/ios/archive/Runner.xcarchive`
-- macOS archive: `build/macos/archive/Keygen Client.xcarchive` (prepared archive; exporter applies distribution signing)
+- macOS archive: `build/macos/archive/Licence Manager for Keygen.xcarchive` (prepared archive; exporter applies distribution signing)
 
-Both packages were exported locally using team `27K26BJN5H`, identifier `com.axymlabs.keygenapp` and version `1.0.1 (2)`. Neither has been uploaded. The public Keygen Client privacy/support sections on axym.dev still need publication. Store metadata, screenshots and physical-device testing also remain before submission.
+Both packages were exported locally using team `27K26BJN5H`, identifier `com.axymlabs.keygenapp` and version `1.0.1 (2)`. Neither has been uploaded. The public Licence Manager for Keygen privacy/support sections on axym.dev still need publication. Store metadata, screenshots and physical-device testing also remain before submission.
 
 ## Required publisher configuration
 
@@ -41,10 +41,10 @@ python3 tool/check_release.py
 flutter build ipa --release --dart-define-from-file=release.json --export-options-plist=ios/ExportOptions.plist
 python3 tool/check_release.py --strict --config release.json --bundle build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app
 flutter build macos --release --config-only --dart-define-from-file=release.json
-xcodebuild -workspace macos/Runner.xcworkspace -scheme Runner -configuration Release -archivePath "build/macos/archive/Keygen Client.xcarchive" CODE_SIGNING_ALLOWED=NO archive
-python3 tool/check_release.py --strict --config release.json --bundle "build/macos/archive/Keygen Client.xcarchive/Products/Applications/Keygen Client.app"
-python3 tool/prepare_macos_archive.py "build/macos/archive/Keygen Client.xcarchive"
-xcodebuild -exportArchive -archivePath "build/macos/archive/Keygen Client.xcarchive" -exportPath build/macos/store -exportOptionsPlist macos/ExportOptions.plist -allowProvisioningUpdates
+xcodebuild -workspace macos/Runner.xcworkspace -scheme Runner -configuration Release -archivePath "build/macos/archive/Licence Manager for Keygen.xcarchive" CODE_SIGNING_ALLOWED=NO archive
+python3 tool/check_release.py --strict --config release.json --bundle "build/macos/archive/Licence Manager for Keygen.xcarchive/Products/Applications/Licence Manager for Keygen.app"
+python3 tool/prepare_macos_archive.py "build/macos/archive/Licence Manager for Keygen.xcarchive"
+xcodebuild -exportArchive -archivePath "build/macos/archive/Licence Manager for Keygen.xcarchive" -exportPath build/macos/store -exportOptionsPlist macos/ExportOptions.plist -allowProvisioningUpdates
 ```
 
 Open `ios/Runner.xcworkspace` and `macos/Runner.xcworkspace` for signing and distribution. The Mac commands archive without development signing, normalize app/framework signing identifiers, then let Xcode apply App Store distribution signing during export. The normalization prevents Xcode from preserving a linker-generated framework requirement whose identifier differs from its Info.plist identifier. Verify exported app signatures with `codesign --verify --deep --strict` before distribution. This avoids requiring a registered development Mac just to package a store release. A normal signed development build still requires a Mac development provisioning profile. Validate the exported packages in Xcode/Transporter before submission. These commands prepare builds; nothing in this repository uploads or submits automatically. CI artifacts are unsigned validation builds and are not store-ready packages.

@@ -44,13 +44,14 @@ class _Root extends StatelessWidget {
       duration: const Duration(milliseconds: 250),
       child: switch (session.state) {
         AuthState.loading => const Scaffold(
-              body: Center(
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              BrandMark(size: 72),
-              SizedBox(height: 24),
-              CircularProgressIndicator.adaptive(),
-            ]),
-          )),
+              body: Stack(alignment: Alignment.center, children: [
+            // Matches the native launch screen so the handoff doesn't jump.
+            BrandMark(size: 160),
+            Align(
+              alignment: Alignment(0, 0.45),
+              child: CircularProgressIndicator.adaptive(),
+            ),
+          ])),
         AuthState.signedOut => const ConnectScreen(key: ValueKey('connect')),
         AuthState.signedIn =>
           HomeShell(key: ValueKey(session.serverUrl + session.account)),

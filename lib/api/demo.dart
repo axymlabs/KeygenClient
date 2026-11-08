@@ -60,6 +60,25 @@ http.Client demoHttpClient() {
       items.add(item);
       return ok({'data': item}, 201);
     }
+    if (kind == 'licenses' &&
+        req.method == 'POST' &&
+        path.length == 3 &&
+        path[2] == 'validate-key') {
+      final key = ((jsonDecode(req.body) as Map)['meta'] as Map?)?['key'];
+      final hit = items.firstWhere(
+          (e) => (e['attributes'] as Map)['key'] == key,
+          orElse: () => const {});
+      return hit.isEmpty
+          ? ok({
+              'errors': [
+                {'title': 'Not found', 'detail': 'License not found'}
+              ]
+            }, 404)
+          : ok({
+              'data': hit,
+              'meta': {'valid': true}
+            });
+    }
     final id = path[1];
     final item = items.firstWhere((e) => e['id'] == id, orElse: () => const {});
     if (path.length == 3 &&

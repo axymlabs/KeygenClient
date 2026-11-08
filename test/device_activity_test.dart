@@ -128,7 +128,9 @@ void main() {
             home: Scaffold(
                 body: SingleChildScrollView(child: DeviceActivityPanel())))));
     await tester.pumpAndSettle();
-    expect(find.text('1'), findsNWidgets(2));
+    expect(find.text('1'), findsOneWidget);
+    expect(find.byKey(const ValueKey('heartbeat-ring')), findsOneWidget);
+    await tester.ensureVisible(find.text('Devices on overdue licences'));
     await tester.tap(find.text('Devices on overdue licences'));
     await tester.pumpAndSettle();
     expect(find.text('Late Mac'), findsOneWidget);

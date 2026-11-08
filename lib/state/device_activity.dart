@@ -1,5 +1,7 @@
 import '../api/keygen_client.dart';
 
+enum HeartbeatGroup { onTime, overdue, notStarted, unmonitored, unknown }
+
 /// A snapshot of the machines visible to this token, joined to their licences.
 /// A licence check-in cannot identify which particular device checked in.
 class DeviceActivity {
@@ -52,4 +54,21 @@ class DeviceActivity {
   final Set<String> overdueLicenceDevices;
   final int missingLicenceLinks;
   final DateTime checkedAt;
+
+  HeartbeatGroup heartbeatGroup(Resource machine) {
+    if (overdueHeartbeats.contains(machine.id)) return HeartbeatGroup.overdue;
+    final status = machine.str('heartbeatStatus');
+    if (machine.date('nextHeartbeat') != null ||
+        status == 'ALIVE' ||
+        status == 'RESURRECTED') {
+      return HeartbeatGroup.onTime;
+    }
+    if (machine.boolVal('requireHeartbeat') == false &&
+        machine.date('lastHeartbeat') == null &&
+        (status == null || status == 'NOT_STARTED')) {
+      return HeartbeatGroup.unmonitored;
+    }
+    if (status == 'NOT_STARTED') return HeartbeatGroup.notStarted;
+    return HeartbeatGroup.unknown;
+  }
 }

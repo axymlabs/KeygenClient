@@ -316,4 +316,19 @@ class KeygenClient {
     }
     return cert;
   }
+
+  /// Looks a licence up by its key using the validate-key action. Returns
+  /// null when no licence has that key.
+  Future<Resource?> findLicenseByKey(String key) async {
+    try {
+      final json = await _send('POST', 'licenses/actions/validate-key', body: {
+        'meta': {'key': key}
+      });
+      final data = json['data'];
+      return data is Map<String, dynamic> ? Resource.fromJson(data) : null;
+    } on ApiException catch (e) {
+      if (e.status == 404) return null;
+      rethrow;
+    }
+  }
 }

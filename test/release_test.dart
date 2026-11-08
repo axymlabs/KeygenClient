@@ -100,7 +100,7 @@ void main() {
     await tester
         .pumpWidget(const MaterialApp(home: Scaffold(body: AppVersion())));
     await tester.pumpAndSettle();
-    expect(find.text('Keygen Client · 2.3.4 (57)'), findsOneWidget);
+    expect(find.text('Licence Manager for Keygen · 2.3.4 (57)'), findsOneWidget);
   });
 
   testWidgets(

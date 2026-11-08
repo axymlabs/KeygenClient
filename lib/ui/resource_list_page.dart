@@ -125,7 +125,11 @@ class _ResourceListPageState extends State<ResourceListPage> {
       );
     }
     final r = shown[i];
-    final status = kind.path == 'licenses' ? r.str('status') : null;
+    final status = kind.path == 'licenses'
+        ? r.str('status')
+        : kind.path == 'machines'
+            ? r.str('heartbeatStatus')
+            : null;
     return Dismissible(
       key: ValueKey(r.id),
       direction: DismissDirection.endToStart,

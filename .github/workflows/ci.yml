@@ -54,8 +54,8 @@ jobs:
       - run: flutter pub get
       - run: flutter build macos --release --config-only
       - run: xcodebuild -workspace macos/Runner.xcworkspace -scheme Runner -configuration Release -derivedDataPath build/macos-ci CODE_SIGNING_ALLOWED=NO build
-      - run: python3 tool/check_release.py --bundle "build/macos-ci/Build/Products/Release/Keygen Client.app"
-      - run: ditto -c -k --keepParent "build/macos-ci/Build/Products/Release/Keygen Client.app" keygen-client-macos-unsigned.zip
+      - run: python3 tool/check_release.py --bundle "build/macos-ci/Build/Products/Release/Licence Manager for Keygen.app"
+      - run: ditto -c -k --keepParent "build/macos-ci/Build/Products/Release/Licence Manager for Keygen.app" keygen-client-macos-unsigned.zip
       - uses: actions/upload-artifact@v4
         with:
           name: macos-app-unsigned

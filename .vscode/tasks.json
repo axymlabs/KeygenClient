@@ -59,7 +59,7 @@
     {
       "label": "Release: build macOS package",
       "type": "shell",
-      "command": "flutter build macos --release --config-only --dart-define-from-file=release.json && xcodebuild -workspace macos/Runner.xcworkspace -scheme Runner -configuration Release -archivePath \"build/macos/archive/Keygen Client.xcarchive\" CODE_SIGNING_ALLOWED=NO archive && python3 tool/check_release.py --strict --config release.json --bundle \"build/macos/archive/Keygen Client.xcarchive/Products/Applications/Keygen Client.app\" && python3 tool/prepare_macos_archive.py \"build/macos/archive/Keygen Client.xcarchive\" && xcodebuild -exportArchive -archivePath \"build/macos/archive/Keygen Client.xcarchive\" -exportPath build/macos/store -exportOptionsPlist macos/ExportOptions.plist -allowProvisioningUpdates",
+      "command": "flutter build macos --release --config-only --dart-define-from-file=release.json && xcodebuild -workspace macos/Runner.xcworkspace -scheme Runner -configuration Release -archivePath \"build/macos/archive/Licence Manager for Keygen.xcarchive\" CODE_SIGNING_ALLOWED=NO archive && python3 tool/check_release.py --strict --config release.json --bundle \"build/macos/archive/Licence Manager for Keygen.xcarchive/Products/Applications/Licence Manager for Keygen.app\" && python3 tool/prepare_macos_archive.py \"build/macos/archive/Licence Manager for Keygen.xcarchive\" && xcodebuild -exportArchive -archivePath \"build/macos/archive/Licence Manager for Keygen.xcarchive\" -exportPath build/macos/store -exportOptionsPlist macos/ExportOptions.plist -allowProvisioningUpdates",
       "problemMatcher": [],
       "presentation": { "panel": "dedicated" }
     },

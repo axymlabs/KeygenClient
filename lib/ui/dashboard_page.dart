@@ -69,7 +69,7 @@ class _DashboardPageState extends State<DashboardPage> {
       onRefresh: _refresh,
       slivers: [
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
+          padding: const EdgeInsets.fromLTRB(14, 0, 14, 110),
           sliver: SliverToBoxAdapter(
             child: FutureBuilder<_DashData>(
               future: _future,
@@ -126,7 +126,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       status,
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 10),
                       ..._content(context, snap.data!)
                     ]);
               },
@@ -164,23 +164,24 @@ class _DashboardPageState extends State<DashboardPage> {
 
     return [
       r(_Hero(d, statusCounts)),
-      const SizedBox(height: 12),
+      const SizedBox(height: 10),
       r(_Attention(statusCounts, onTap: () => widget.onOpenTab(1))),
       r(const SectionHeader('Device activity')),
       r(const DeviceActivityPanel()),
       r(const SectionHeader('Inventory')),
       r(SizedBox(
-        height: 124,
+        height: 72,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           clipBehavior: Clip.none,
           itemCount: stats.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 12),
+          separatorBuilder: (_, __) => const SizedBox(width: 10),
           itemBuilder: (context, n) {
             final s = stats[n];
             return SizedBox(
-              width: 132,
+              width: 118,
               child: Panel(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                 onTap: s.$4 == null
                     ? () => Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) =>
@@ -189,21 +190,17 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                            color: cs.primary.withValues(alpha: 0.14),
-                            borderRadius: BorderRadius.circular(9)),
-                        child: Icon(s.$3, size: 17, color: cs.primary),
-                      ),
+                      Row(children: [
+                        Icon(s.$3, size: 14, color: cs.primary),
+                        const SizedBox(width: 6),
+                        Text(s.$2,
+                            style: TextStyle(
+                                fontSize: 11.5, color: cs.onSurfaceVariant)),
+                      ]),
                       const Spacer(),
                       Text('${d.counts[s.$1]}',
                           style: AppTheme.mono(context,
-                              size: 24, weight: FontWeight.w600)),
-                      Text(s.$2,
-                          style: TextStyle(
-                              fontSize: 12, color: cs.onSurfaceVariant)),
+                              size: 22, weight: FontWeight.w600)),
                     ]),
               ),
             );
@@ -282,7 +279,7 @@ class _Hero extends StatelessWidget {
 
     return Panel(
       glow: cs.primary,
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           const Caps('Active licences'),
@@ -304,20 +301,20 @@ class _Hero extends StatelessWidget {
               ]),
             ),
         ]),
-        const SizedBox(height: 10),
+        const SizedBox(height: 4),
         Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text('$active',
-              style: AppTheme.mono(context, size: 56, weight: FontWeight.w600)),
+              style: AppTheme.mono(context, size: 44, weight: FontWeight.w600)),
           const SizedBox(width: 10),
           Padding(
-            padding: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.only(bottom: 7),
             child: Text('of $total${sampled ? '+' : ''}',
                 style: AppTheme.mono(context,
                     size: 15, color: cs.onSurfaceVariant)),
           ),
         ]),
-        const SizedBox(height: 12),
-        if (series.length > 1) LineChart(values: series, height: 88),
+        const SizedBox(height: 8),
+        if (series.length > 1) LineChart(values: series, height: 64),
       ]),
     );
   }
@@ -349,22 +346,26 @@ class _Attention extends StatelessWidget {
     }
     return Row(children: [
       for (final (n, e) in items.indexed) ...[
-        if (n > 0) const SizedBox(width: 10),
+        if (n > 0) const SizedBox(width: 8),
         Expanded(
           child: Panel(
             onTap: onTap,
             glow: statusColor(e.$1, cs),
-            radius: 16,
-            padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(e.$3, size: 18, color: statusColor(e.$1, cs)),
-              const SizedBox(height: 10),
+            radius: 14,
+            padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+            child: Row(children: [
+              Icon(e.$3, size: 16, color: statusColor(e.$1, cs)),
+              const SizedBox(width: 8),
               Text('${counts[e.$1]}',
                   style: AppTheme.mono(context,
-                      size: 22, weight: FontWeight.w600)),
-              Text(e.$2,
-                  style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+                      size: 18, weight: FontWeight.w600)),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(e.$2,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        TextStyle(fontSize: 11.5, color: cs.onSurfaceVariant)),
+              ),
             ]),
           ),
         ),
@@ -405,13 +406,14 @@ class _StatusPanel extends StatelessWidget {
             ],
             centerValue: '$total',
             centerLabel: 'Licences',
+            size: 104,
           ),
-          const SizedBox(width: 24),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(children: [
               for (final e in entries)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  padding: const EdgeInsets.symmetric(vertical: 3),
                   child: Row(children: [
                     Container(
                         width: 8,
@@ -471,17 +473,17 @@ class _ActivityPanel extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text('$total',
-              style: AppTheme.mono(context, size: 28, weight: FontWeight.w600)),
+              style: AppTheme.mono(context, size: 22, weight: FontWeight.w600)),
           const SizedBox(width: 8),
           Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(bottom: 3),
             child: Text('created',
                 style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ),
         ]),
-        const SizedBox(height: 16),
-        BarChart(values: buckets, labels: labels),
+        const SizedBox(height: 8),
+        BarChart(values: buckets, labels: labels, height: 84),
       ]),
     );
   }
@@ -511,17 +513,20 @@ class _ExpiryPanel extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text('$total',
-              style: AppTheme.mono(context, size: 28, weight: FontWeight.w600)),
+              style: AppTheme.mono(context, size: 22, weight: FontWeight.w600)),
           const SizedBox(width: 8),
           Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(bottom: 3),
             child:
                 Text('expiring', style: TextStyle(color: cs.onSurfaceVariant)),
           ),
         ]),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         BarChart(
-            values: buckets, labels: labels, color: const Color(0xFFFFB020)),
+            values: buckets,
+            labels: labels,
+            height: 84,
+            color: const Color(0xFFFFB020)),
       ]),
     );
   }
