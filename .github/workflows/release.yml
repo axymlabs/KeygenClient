@@ -39,6 +39,14 @@ jobs:
           read -r version build < <(python3 tool/release_version.py check "${args[@]}")
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "build=$build" >> "$GITHUB_OUTPUT"
+      - name: Check version and build numbers with Apple
+        if: github.event_name == 'push' || inputs.upload_to_app_store
+        working-directory: .
+        env:
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: python3 tool/app_store_connect.py check
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -97,6 +105,9 @@ jobs:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: bash tool/build_apple_ci.sh upload "${{ matrix.platform }}"
+      - name: Wait for Apple processing
+        if: github.event_name == 'push' || inputs.upload_to_app_store
+        run: python3 tool/app_store_connect.py wait "${{ matrix.platform }}"
       - uses: actions/upload-artifact@v4
         if: success() || failure()
         with:

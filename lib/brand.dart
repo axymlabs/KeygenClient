@@ -5,9 +5,9 @@ abstract final class AppBrand {
   static const name = 'Licence Manager for Keygen';
   static const tagline = 'Your licences. In hand.';
   static const privacyUrl = String.fromEnvironment('PRIVACY_POLICY_URL',
-      defaultValue: 'https://axym.dev/apps#keygen-client-privacy');
+      defaultValue: 'https://axym.dev/apps#keygen-privacy');
   static const supportUrl = String.fromEnvironment('SUPPORT_URL',
-      defaultValue: 'https://axym.dev/apps#keygen-client-support');
+      defaultValue: 'https://axym.dev/apps#keygen-support');
   static final Future<PackageInfo> packageInfo = PackageInfo.fromPlatform();
 }
 

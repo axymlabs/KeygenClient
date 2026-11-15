@@ -18,9 +18,9 @@ if not m:
     p.error('pubspec.yaml must have version: major.minor.patch+positive_build')
 major, minor, patch, build = map(int, m.groups())
 if a.command == 'bump':
-    if a.value == 'major': major, minor, patch, build = major + 1, 0, 0, 1
-    elif a.value == 'minor': minor, patch, build = minor + 1, 0, 1
-    elif a.value == 'patch': patch, build = patch + 1, 1
+    if a.value == 'major': major, minor, patch, build = major + 1, 0, 0, build + 1
+    elif a.value == 'minor': minor, patch, build = minor + 1, 0, build + 1
+    elif a.value == 'patch': patch, build = patch + 1, build + 1
     elif a.value == 'build': build += 1
     else: p.error('bump requires major, minor, patch or build')
     s = s[:m.start()] + f'version: {major}.{minor}.{patch}+{build}' + s[m.end():]

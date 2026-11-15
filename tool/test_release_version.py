@@ -26,8 +26,11 @@ class ReleaseVersionTest(unittest.TestCase):
         self.assertNotEqual(self.run_version('check', 'v1.2.4').returncode, 0)
     def test_bump_preserves_pubspec_structure(self):
         self.assertEqual(self.run_version('bump', 'patch').returncode, 0)
-        self.assertIn('version: 1.2.4+1\n\nenvironment:\n', self.pubspec.read_text())
-        self.assertEqual(self.run_version('bump', 'build').stdout.strip(), '1.2.4 2')
+        self.assertIn('version: 1.2.4+5\n\nenvironment:\n', self.pubspec.read_text())
+        self.assertEqual(self.run_version('bump', 'build').stdout.strip(), '1.2.4 6')
+    def test_marketing_version_bumps_keep_build_increasing(self):
+        self.assertEqual(self.run_version('bump', 'minor').stdout.strip(), '1.3.0 5')
+        self.assertEqual(self.run_version('bump', 'major').stdout.strip(), '2.0.0 6')
     def test_bundle_must_match_both_values(self):
         bundle = self.root / 'Example.app'
         bundle.mkdir()
