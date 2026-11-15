@@ -6,7 +6,7 @@ Run `bash tool/prepare_release.sh patch` (or `minor`, `major`, `build`) from a c
 
 ## GitHub Actions secrets
 
-The five shared Apple certificate and App Store Connect secrets are AXYM Labs organisation secrets. Their visibility is restricted to RepoPermissionManager, KeygenClient, StarlinkMonitorApp and SnapVault. Repository copies have been removed. The two build-profile secrets are app-specific repository secrets; missing profiles are obtained using automatic signing.
+The five shared Apple certificate and App Store Connect secrets are AXYM Labs organisation secrets. Their visibility is restricted to RepoPermissionManager, KeygenClient, StarlinkMonitorApp and SnapVault. Repository copies have been removed. App-specific iOS/macOS profiles are also organisation secrets, named KEYGEN_CLIENT_IOS_BUILD_PROFILE_BASE64 and KEYGEN_CLIENT_MACOS_BUILD_PROFILE_BASE64, restricted to this repository. The shared certificate is a dedicated CI identity with matching profiles.
 
 
 - APPLE_SIGNING_CERTIFICATE_BASE64: existing Apple Development identity exported as PKCS#12.

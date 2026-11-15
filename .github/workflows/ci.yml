@@ -20,6 +20,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: '3.50.0'
           cache: true
       - run: flutter pub get
       - run: flutter analyze --no-fatal-infos
@@ -38,6 +39,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: '3.50.0'
           cache: true
       - run: flutter pub get
       - run: flutter build apk --release
@@ -54,7 +56,12 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: '3.50.0'
           cache: true
+      - name: Install Crashlytics symbol uploader
+        run: |
+          dart pub global activate flutterfire_cli 1.5.0
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
       - run: flutter pub get
       - run: flutter build macos --release --config-only
       - run: xcodebuild -workspace macos/Runner.xcworkspace -scheme Runner -configuration Release -derivedDataPath build/macos-ci CODE_SIGNING_ALLOWED=NO build
@@ -73,7 +80,12 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: '3.50.0'
           cache: true
+      - name: Install Crashlytics symbol uploader
+        run: |
+          dart pub global activate flutterfire_cli 1.5.0
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
       - run: flutter pub get
       - run: flutter build ios --release --no-codesign
       - run: python3 tool/check_release.py --bundle build/ios/iphoneos/Runner.app
@@ -90,6 +102,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: '3.50.0'
           cache: true
       - run: flutter pub get
       - run: flutter build linux --release
@@ -107,6 +120,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: '3.50.0'
           cache: true
       - run: flutter pub get
       - run: flutter build windows --release

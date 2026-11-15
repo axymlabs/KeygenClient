@@ -39,6 +39,15 @@ jobs:
           read -r version build < <(python3 tool/release_version.py check "${args[@]}")
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "build=$build" >> "$GITHUB_OUTPUT"
+      - name: Validate shared signing credentials before starting builds
+        working-directory: .
+        env:
+          APPLE_SIGNING_CERTIFICATE_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
+          APPLE_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: python3 tool/apple_signing.py validate
       - name: Check version and build numbers with Apple
         if: github.event_name == 'push' || inputs.upload_to_app_store
         working-directory: .
@@ -50,7 +59,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: '3.47.6'
+          flutter-version: '3.50.0'
           cache: true
       - run: flutter pub get
         working-directory: .
@@ -79,7 +88,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: '3.47.6'
+          flutter-version: '3.50.0'
           cache: true
       - run: flutter pub get
       - name: Install Crashlytics symbol uploader
@@ -90,7 +99,7 @@ jobs:
         env:
           APPLE_SIGNING_CERTIFICATE_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
           APPLE_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
-          BUILD_PROFILE_BASE64: ${{ (matrix.platform == 'ios' && secrets.IOS_BUILD_PROFILE_BASE64) || (matrix.platform == 'macos' && secrets.MACOS_BUILD_PROFILE_BASE64) || '' }}
+          BUILD_PROFILE_BASE64: ${{ (matrix.platform == 'ios' && secrets.KEYGEN_CLIENT_IOS_BUILD_PROFILE_BASE64) || (matrix.platform == 'macos' && secrets.KEYGEN_CLIENT_MACOS_BUILD_PROFILE_BASE64) || '' }}
           APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
