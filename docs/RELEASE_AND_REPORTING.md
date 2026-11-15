@@ -2,7 +2,7 @@
 
 `pubspec.yaml` is the authority for `major.minor.patch+build`. Apple archives and exported packages preserve both values. Git tags use `vmajor.minor.patch`; mismatches fail before signing. Build numbers are never derived from GitHub run numbers.
 
-Run `bash tool/prepare_release.sh patch` (or `minor`, `major`, `build`) from a clean working tree. Review the version commit, merge it into main, tag that exact commit using the version shown, and push the tag. The Release workflow builds and signs iOS and macOS, retains packages and dSYMs, uploads to App Store Connect for TestFlight, then creates the matching GitHub Release. An upload does not submit the app for review or release it publicly. A manual Release run can build the current pubspec version without creating a release tag.
+Run `bash tool/prepare_release.sh patch` (or `minor`, `major`, `build`) from a clean working tree. Review the version commit, merge it into the repository default branch, tag that exact commit using the version shown, and push the tag. The Release workflow builds and signs iOS and macOS, retains packages and dSYMs, uploads to App Store Connect for TestFlight, then creates the matching GitHub Release. An upload does not submit the app for review or release it publicly. A manual Release run can build the current pubspec version without creating a release tag.
 
 ## GitHub Actions secrets
 

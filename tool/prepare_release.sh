@@ -6,4 +6,4 @@ python3 tool/release_version.py bump "${1:-patch}"
 read -r version build < <(python3 tool/release_version.py check)
 git add pubspec.yaml
 git commit -m "Prepare release $version ($build)"
-echo "Review this commit, merge it to main, then tag that commit v$version and push the tag."
+echo "Review this commit, merge it to the repository default branch, then tag that commit v$version and push the tag."
