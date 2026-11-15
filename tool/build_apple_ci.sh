@@ -29,7 +29,6 @@ output="$PWD/build/$platform/app-store"
 xcodebuild -workspace "$platform/Runner.xcworkspace" -scheme Runner -configuration Release \
   -destination "$destination" -archivePath "$archive" \
   -clonedSourcePackagesDirPath "$PWD/build/$platform/SourcePackages" "${auth[@]}" \
-  DEVELOPMENT_TEAM=27K26BJN5H CODE_SIGN_STYLE=Automatic CODE_SIGN_IDENTITY='Apple Development' \
   CURRENT_PROJECT_VERSION="$build" MARKETING_VERSION="$version" archive
 shopt -s nullglob
 bundles=("$archive/Products/Applications/"*.app)

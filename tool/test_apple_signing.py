@@ -5,9 +5,19 @@ import os
 import stat
 import tempfile
 import unittest
+from unittest.mock import patch
+import base64
 import apple_signing
 
 class PrivateCredentialFileTest(unittest.TestCase):
+    def test_empty_certificate_fails_before_any_build_tools(self):
+        with patch.dict(os.environ, {"APPLE_SIGNING_CERTIFICATE_BASE64": ""}, clear=True):
+            with self.assertRaisesRegex(ValueError, "APPLE_SIGNING_CERTIFICATE_BASE64"):
+                apple_signing.validate()
+    def test_incomplete_certificate_is_rejected(self):
+        with patch.dict(os.environ, {"APPLE_SIGNING_CERTIFICATE_BASE64": base64.b64encode(b"incomplete").decode()}, clear=True):
+            with self.assertRaisesRegex(ValueError, "empty or incomplete"):
+                apple_signing.validate()
     def test_create_is_private_even_with_permissive_umask(self):
         with tempfile.TemporaryDirectory() as directory:
             destination = Path(directory) / 'key'

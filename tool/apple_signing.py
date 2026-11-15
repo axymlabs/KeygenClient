@@ -38,10 +38,28 @@ def write_private(path, contents):
         handle.write(contents)
 
 
+def validate():
+    certificate = base64.b64decode(secret("APPLE_SIGNING_CERTIFICATE_BASE64"), validate=True)
+    if len(certificate) < 500:
+        raise ValueError("The signing certificate is empty or incomplete")
+    secret("APPLE_SIGNING_CERTIFICATE_PASSWORD")
+    for name in ("APP_STORE_CONNECT_PRIVATE_KEY", "APP_STORE_CONNECT_KEY_ID", "APP_STORE_CONNECT_ISSUER_ID"):
+        secret(name)
+    args = ["openssl", "pkcs12", "-noout", "-passin", "env:APPLE_SIGNING_CERTIFICATE_PASSWORD"]
+    result = subprocess.run(args, input=certificate, capture_output=True)
+    if result.returncode:
+        # OpenSSL 3 requires its legacy provider for older PKCS12 exports.
+        result = subprocess.run(args + ["-legacy"], input=certificate, capture_output=True)
+    if result.returncode:
+        raise ValueError("The signing certificate or export password is invalid")
+    print("Validated the shared Apple signing certificate")
+    return certificate
+
+
 def install(directory, platform):
     if platform not in ("ios", "macos"):
         raise ValueError("Expected ios or macos")
-    certificate = base64.b64decode(secret("APPLE_SIGNING_CERTIFICATE_BASE64"), validate=True)
+    certificate = validate()
     certificate_password = secret("APPLE_SIGNING_CERTIFICATE_PASSWORD")
     profile = base64.b64decode(os.environ.get("BUILD_PROFILE_BASE64", ""), validate=True)
     api_key = secret("APP_STORE_CONNECT_PRIVATE_KEY")
@@ -108,7 +126,9 @@ def main():
     if os.environ.get("GITHUB_ACTIONS") != "true":
         raise ValueError("This helper only runs on GitHub Actions")
     directory = Path(os.environ["RUNNER_TEMP"]) / "apple-release-signing"
-    if sys.argv[1:] == ["cleanup"]:
+    if sys.argv[1:] == ["validate"]:
+        validate()
+    elif sys.argv[1:] == ["cleanup"]:
         cleanup(directory)
     elif len(sys.argv) == 3 and sys.argv[1] == "install":
         install(directory, sys.argv[2])
