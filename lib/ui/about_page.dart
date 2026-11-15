@@ -58,7 +58,7 @@ class AboutPage extends StatelessWidget {
                       'the saved access token; it does not revoke the token on your server.'),
                   const SizedBox(height: 16),
                   const Text(
-                      'There are no advertising or analytics SDKs in this app. Licence data '
+                      'Optional Firebase crash reports and usage analytics can be enabled in More. There is no advertising or cross-app tracking. Licence data '
                       'is loaded from your server. Copying a licence places its contents on the '
                       'system clipboard; sharing a file writes a temporary copy and sends it to '
                       'the destination you select. Templates may contain any fixed text or '

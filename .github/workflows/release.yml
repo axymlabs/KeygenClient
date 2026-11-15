@@ -1,0 +1,140 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      upload_to_app_store:
+        description: Upload signed builds to App Store Connect / TestFlight
+        type: boolean
+        default: true
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      build: ${{ steps.version.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify pubspec and release tag
+        id: version
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        working-directory: .
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            args=("$GITHUB_REF_NAME")
+            git merge-base --is-ancestor "$GITHUB_SHA" "origin/$DEFAULT_BRANCH"
+          fi
+          read -r version build < <(python3 tool/release_version.py check "${args[@]}")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "build=$build" >> "$GITHUB_OUTPUT"
+      - name: Check version and build numbers with Apple
+        if: github.event_name == 'push' || inputs.upload_to_app_store
+        working-directory: .
+        env:
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: python3 tool/app_store_connect.py check
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.6'
+          cache: true
+      - run: flutter pub get
+        working-directory: .
+      - run: flutter analyze --no-fatal-infos
+        working-directory: .
+      - run: python3 tool/test_apple_signing.py
+        working-directory: .
+      - run: python3 tool/test_release_version.py
+        working-directory: .
+      - run: flutter test
+        working-directory: .
+  apple:
+    needs: verify
+    runs-on: macos-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ios, macos]
+    defaults:
+      run:
+        working-directory: .
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.6'
+          cache: true
+      - run: flutter pub get
+      - name: Install Crashlytics symbol uploader
+        run: |
+          dart pub global activate flutterfire_cli 1.5.0
+          echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
+      - name: Install temporary Apple signing credentials
+        env:
+          APPLE_SIGNING_CERTIFICATE_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
+          APPLE_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
+          BUILD_PROFILE_BASE64: ${{ (matrix.platform == 'ios' && secrets.IOS_BUILD_PROFILE_BASE64) || (matrix.platform == 'macos' && secrets.MACOS_BUILD_PROFILE_BASE64) || '' }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: python3 tool/apple_signing.py install "${{ matrix.platform }}"
+      - name: Archive and export
+        run: bash tool/build_apple_ci.sh "${{ matrix.platform }}"
+      - name: Upload to App Store Connect
+        if: github.event_name == 'push' || inputs.upload_to_app_store
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: bash tool/build_apple_ci.sh upload "${{ matrix.platform }}"
+      - name: Wait for Apple processing
+        if: github.event_name == 'push' || inputs.upload_to_app_store
+        run: python3 tool/app_store_connect.py wait "${{ matrix.platform }}"
+      - uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: app-store-${{ matrix.platform }}-${{ needs.verify.outputs.version }}-${{ needs.verify.outputs.build }}
+          path: |
+            build/${{ matrix.platform }}/app-store/*.ipa
+            build/${{ matrix.platform }}/app-store/*.pkg
+            build/${{ matrix.platform }}/archive/*.xcarchive/dSYMs
+          if-no-files-found: error
+          retention-days: 14
+      - name: Remove temporary Apple credentials
+        if: always()
+        run: python3 tool/apple_signing.py cleanup
+  publish:
+    if: github.ref_type == 'tag'
+    needs: [verify, apple]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: app-store-*
+          path: dist
+      - name: Publish matching GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          mapfile -d '' packages < <(find dist -type f \( -name '*.ipa' -o -name '*.pkg' \) -print0)
+          test "${#packages[@]}" -eq 2
+          gh release create "$GITHUB_REF_NAME" "${packages[@]}" --verify-tag --title "$GITHUB_REF_NAME" --generate-notes
