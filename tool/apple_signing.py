@@ -29,8 +29,13 @@ def secret(name):
 
 
 def write_private(path, contents):
-    path.write_bytes(contents)
-    path.chmod(0o600)
+    # Apple signing tools require credential files. Restrict permissions when
+    # creating them, before the first byte is written, inside the private runner
+    # directory; cleanup removes them after either success or failure.
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW, 0o600)
+    os.fchmod(descriptor, 0o600)
+    with os.fdopen(descriptor, "wb") as handle:
+        handle.write(contents)
 
 
 def install(directory, platform):

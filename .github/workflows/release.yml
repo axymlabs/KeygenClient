@@ -56,6 +56,8 @@ jobs:
         working-directory: .
       - run: flutter analyze --no-fatal-infos
         working-directory: .
+      - run: python3 tool/test_apple_signing.py
+        working-directory: .
       - run: python3 tool/test_release_version.py
         working-directory: .
       - run: flutter test
@@ -67,11 +69,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: ios
-            profile_secret: IOS_BUILD_PROFILE_BASE64
-          - platform: macos
-            profile_secret: MACOS_BUILD_PROFILE_BASE64
+        platform: [ios, macos]
     defaults:
       run:
         working-directory: .
@@ -92,7 +90,7 @@ jobs:
         env:
           APPLE_SIGNING_CERTIFICATE_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
           APPLE_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
-          BUILD_PROFILE_BASE64: ${{ secrets[matrix.profile_secret] }}
+          BUILD_PROFILE_BASE64: ${{ (matrix.platform == 'ios' && secrets.IOS_BUILD_PROFILE_BASE64) || (matrix.platform == 'macos' && secrets.MACOS_BUILD_PROFILE_BASE64) || '' }}
           APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
