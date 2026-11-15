@@ -1,3 +1,4 @@
+import 'reporting.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,8 +9,9 @@ import 'state/templates.dart';
 import 'ui/connect_screen.dart';
 import 'ui/home_shell.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Reporting.instance.initialize();
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => Session()..restore()),
@@ -29,7 +31,7 @@ class KeygenApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.build(Brightness.light),
       darkTheme: AppTheme.build(Brightness.dark),
-      home: const _Root(),
+      home: const ReportingConsent(child: _Root()),
     );
   }
 }

@@ -1,12 +1,15 @@
 name: keygen_app
 description: A licence manager for Keygen licensing servers.
 publish_to: none
-version: 1.1.0+1
+version: 1.1.1+1
 
 environment:
   sdk: ^3.5.0
 
 dependencies:
+  firebase_analytics: ^13.0.1
+  firebase_crashlytics: ^6.0.1
+  firebase_core: ^5.1.0
   flutter:
     sdk: flutter
   http: ^1.2.2

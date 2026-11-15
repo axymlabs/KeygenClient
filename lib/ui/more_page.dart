@@ -1,3 +1,4 @@
+import '../reporting.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -83,6 +84,7 @@ class MorePage extends StatelessWidget {
                   'Choose which fields go in a file or QR code',
                   () => _open(context, const TemplateListPage())),
             ]),
+            const ReportingSettings(),
             const SectionHeader('Connection'),
             RowsPanel([
               DataRow2('Server', host, mono: true),
