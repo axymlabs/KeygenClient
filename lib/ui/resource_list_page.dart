@@ -24,6 +24,7 @@ class ResourceListPage extends StatefulWidget {
 
 class _ResourceListPageState extends State<ResourceListPage> {
   final _scroll = ScrollController();
+  final _search = TextEditingController();
   final _items = <Resource>[];
   bool _loading = false;
   bool _hasMore = true;
@@ -45,6 +46,7 @@ class _ResourceListPageState extends State<ResourceListPage> {
   @override
   void dispose() {
     _scroll.dispose();
+    _search.dispose();
     super.dispose();
   }
 
@@ -130,6 +132,11 @@ class _ResourceListPageState extends State<ResourceListPage> {
         : kind.path == 'machines'
             ? r.str('heartbeatStatus')
             : null;
+    final statusColorValue = status == null ? null : statusColor(status, cs);
+    final statusChip =
+        status == null ? null : _ListStatus(status, color: statusColorValue!);
+    final stackStatus =
+        statusChip != null && MediaQuery.textScalerOf(context).scale(12) > 18;
     return Dismissible(
       key: ValueKey(r.id),
       direction: DismissDirection.endToStart,
@@ -145,23 +152,64 @@ class _ResourceListPageState extends State<ResourceListPage> {
         return false; // list already updated manually
       },
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-        leading: IconTile(kind.icon,
-            tint: status == null ? null : statusColor(status, cs)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+        leading: IconTile(kind.icon, tint: statusColorValue),
         title: Text(kind.title(r),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(kind.subtitle(r),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style:
-                AppTheme.mono(context, size: 11.5, color: cs.onSurfaceVariant)),
-        trailing: status != null
-            ? StatusPill(status)
-            : Icon(Icons.chevron_right, color: cs.onSurfaceVariant),
+        subtitle: stackStatus
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _subtitle(context, r),
+                  const SizedBox(height: 4),
+                  statusChip,
+                ],
+              )
+            : _subtitle(context, r),
+        trailing: stackStatus
+            ? null
+            : statusChip ??
+                Icon(Icons.chevron_right, color: cs.onSurfaceVariant),
         onTap: () => _open(r),
       ),
+    );
+  }
+
+  Widget _subtitle(BuildContext context, Resource resource) {
+    final cs = Theme.of(context).colorScheme;
+    if (kind.path != 'licenses') {
+      return Text(kind.subtitle(resource),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style:
+              AppTheme.mono(context, size: 11.5, color: cs.onSurfaceVariant));
+    }
+
+    final key = resource.str('key') ?? '';
+    final keyTail = key.isEmpty
+        ? ''
+        : '…${key.length > 4 ? key.substring(key.length - 4) : key}';
+    final expiry = resource.date('expiry')?.toLocal();
+    final expiryLabel = expiry == null
+        ? 'No expiry'
+        : expiry.isBefore(DateTime.now())
+            ? 'Expired ${relativeDays(expiry)}'
+            : 'Expires ${relativeDays(expiry)}';
+    return Wrap(
+      spacing: 10,
+      runSpacing: 2,
+      children: [
+        if (keyTail.isNotEmpty)
+          Text(keyTail,
+              maxLines: 1,
+              style: AppTheme.mono(context,
+                  size: 11.5, color: cs.onSurfaceVariant)),
+        Text(expiryLabel,
+            maxLines: 1,
+            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+      ],
     );
   }
 
@@ -247,11 +295,22 @@ class _ResourceListPageState extends State<ResourceListPage> {
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
           sliver: SliverToBoxAdapter(
             child: TextField(
+              controller: _search,
               onChanged: (v) => setState(() => _query = v),
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
                 hintText: 'Search ${kind.plural.toLowerCase()}',
                 prefixIcon: const Icon(Icons.search, size: 20),
+                suffixIcon: _query.isEmpty
+                    ? null
+                    : IconButton(
+                        tooltip: 'Clear search',
+                        onPressed: () {
+                          _search.clear();
+                          setState(() => _query = '');
+                        },
+                        icon: const Icon(Icons.close, size: 18),
+                      ),
                 isDense: true,
               ),
             ),
@@ -259,6 +318,43 @@ class _ResourceListPageState extends State<ResourceListPage> {
         ),
         ...body,
       ],
+    );
+  }
+}
+
+class _ListStatus extends StatelessWidget {
+  const _ListStatus(this.status, {required this.color});
+
+  final String status;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final value = status.toLowerCase();
+    final label = value.isEmpty
+        ? value
+        : '${value[0].toUpperCase()}${value.substring(1)}';
+    final icon = switch (status.toUpperCase()) {
+      'ACTIVE' || 'ALIVE' || 'RESURRECTED' => Icons.check_circle_outline,
+      'EXPIRING' => Icons.schedule_outlined,
+      'EXPIRED' || 'DEAD' => Icons.event_busy_outlined,
+      'SUSPENDED' => Icons.pause_circle_outline,
+      _ => Icons.info_outline,
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.24)),
+      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(icon, size: 14, color: color),
+        const SizedBox(width: 5),
+        Text(label,
+            style: TextStyle(
+                fontSize: 11.5, fontWeight: FontWeight.w600, color: color)),
+      ]),
     );
   }
 }

@@ -1,7 +1,7 @@
 name: keygen_app
 description: A licence manager for Keygen licensing servers.
 publish_to: none
-version: 1.1.1+5
+version: 1.2.0+6
 
 environment:
   sdk: ^3.5.0

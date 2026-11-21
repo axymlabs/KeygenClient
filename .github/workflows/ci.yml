@@ -74,9 +74,11 @@ jobs:
 
   build-ios:
     needs: check
-    runs-on: macos-latest
+    runs-on: xcode-27
     steps:
       - uses: actions/checkout@v4
+      - name: Select and verify Xcode 27.2 for iOS
+        run: bash tool/select_ios_xcode.sh
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -87,6 +89,10 @@ jobs:
           dart pub global activate flutterfire_cli 1.5.0
           echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
       - run: flutter pub get
+      - name: Report iOS dependencies
+        run: |
+          flutter --version
+          flutter pub deps --style=compact
       - run: flutter build ios --release --no-codesign
       - run: python3 tool/check_release.py --bundle build/ios/iphoneos/Runner.app
 
