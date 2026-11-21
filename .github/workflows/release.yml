@@ -73,7 +73,7 @@ jobs:
         working-directory: .
   apple:
     needs: verify
-    runs-on: macos-latest
+    runs-on: ${{ matrix.platform == 'ios' && 'xcode-27' || 'macos-latest' }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -85,12 +85,20 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v4
+      - name: Select and verify Xcode 27.2 for iOS
+        if: matrix.platform == 'ios'
+        run: bash tool/select_ios_xcode.sh
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
           flutter-version: '3.50.0'
           cache: true
       - run: flutter pub get
+      - name: Report iOS dependencies
+        if: matrix.platform == 'ios'
+        run: |
+          flutter --version
+          flutter pub deps --style=compact
       - name: Install Crashlytics symbol uploader
         run: |
           dart pub global activate flutterfire_cli 1.5.0

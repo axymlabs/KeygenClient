@@ -139,6 +139,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   List<Widget> _content(BuildContext context, _DashData d) {
     final cs = Theme.of(context).colorScheme;
+    final sampled = (d.counts['licenses'] ?? 0) > d.licenses.length;
     final stats = [
       ('licenses', 'Licences', Icons.vpn_key_rounded, 1),
       ('policies', 'Policies', Icons.policy_rounded, 2),
@@ -210,9 +211,13 @@ class _DashboardPageState extends State<DashboardPage> {
       if (d.licenses.isNotEmpty) ...[
         r(const SectionHeader('Licence status')),
         r(_StatusPanel(statusCounts)),
-        r(const SectionHeader('New licences · last 14 days')),
+        r(SectionHeader(sampled
+            ? 'New licences (latest 100, 14 days)'
+            : 'New licences · last 14 days')),
         r(_ActivityPanel(d.licenses)),
-        r(const SectionHeader('Expiry outlook · next 6 months')),
+        r(SectionHeader(sampled
+            ? 'Expiry outlook (latest 100, 6 months)'
+            : 'Expiry outlook · next 6 months')),
         r(_ExpiryPanel(d.licenses)),
       ],
       r(SectionHeader('Expiring within 30 days',
@@ -282,7 +287,7 @@ class _Hero extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          const Caps('Active licences'),
+          Caps(sampled ? 'Active in latest 100' : 'Active licences'),
           const Spacer(),
           if (added > 0)
             Container(
@@ -344,33 +349,63 @@ class _Attention extends StatelessWidget {
         ]),
       );
     }
-    return Row(children: [
-      for (final (n, e) in items.indexed) ...[
-        if (n > 0) const SizedBox(width: 8),
-        Expanded(
-          child: Panel(
-            onTap: onTap,
-            glow: statusColor(e.$1, cs),
-            radius: 14,
-            padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
-            child: Row(children: [
-              Icon(e.$3, size: 16, color: statusColor(e.$1, cs)),
-              const SizedBox(width: 8),
-              Text('${counts[e.$1]}',
-                  style: AppTheme.mono(context,
-                      size: 18, weight: FontWeight.w600)),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(e.$2,
-                    overflow: TextOverflow.ellipsis,
-                    style:
-                        TextStyle(fontSize: 11.5, color: cs.onSurfaceVariant)),
-              ),
-            ]),
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth < 440) {
+        return Panel(
+          onTap: onTap,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          child: Column(
+            children: [
+              for (var i = 0; i < items.length; i++) ...[
+                if (i > 0) const Divider(height: 1),
+                SizedBox(
+                  height: 44,
+                  child: Row(children: [
+                    Icon(items[i].$3,
+                        size: 18, color: statusColor(items[i].$1, cs)),
+                    const SizedBox(width: 12),
+                    Text('${counts[items[i].$1]}',
+                        style: AppTheme.mono(context,
+                            size: 16, weight: FontWeight.w600)),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text(items[i].$2)),
+                    Icon(Icons.chevron_right,
+                        size: 18, color: cs.onSurfaceVariant),
+                  ]),
+                ),
+              ],
+            ],
           ),
-        ),
-      ],
-    ]);
+        );
+      }
+      return Row(children: [
+        for (final (n, e) in items.indexed) ...[
+          if (n > 0) const SizedBox(width: 8),
+          Expanded(
+            child: Panel(
+              onTap: onTap,
+              glow: statusColor(e.$1, cs),
+              radius: 14,
+              padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+              child: Row(children: [
+                Icon(e.$3, size: 16, color: statusColor(e.$1, cs)),
+                const SizedBox(width: 8),
+                Text('${counts[e.$1]}',
+                    style: AppTheme.mono(context,
+                        size: 18, weight: FontWeight.w600)),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(e.$2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontSize: 11.5, color: cs.onSurfaceVariant)),
+                ),
+              ]),
+            ),
+          ),
+        ],
+      ]);
+    });
   }
 }
 

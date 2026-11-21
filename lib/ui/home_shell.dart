@@ -46,69 +46,65 @@ class _HomeShellState extends State<HomeShell> {
     // is too short for a bottom bar (phones in landscape).
     final wide = size.width >= 600 || size.width > size.height;
 
-    if (wide) {
-      return Scaffold(
-        body: Row(children: [
-          // The rail scrolls when the window is short (landscape, split view)
-          // and keeps clear of the notch / home indicator.
-          SafeArea(
-            right: false,
-            child: LayoutBuilder(
-              builder: (context, c) => SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: c.maxHeight),
-                  child: IntrinsicHeight(
-                    child: NavigationRail(
-                      leading: const Padding(
-                        padding: EdgeInsets.only(top: 8, bottom: 16),
-                        child: Tooltip(
-                            message: AppBrand.name, child: BrandMark(size: 40)),
-                      ),
-                      selectedIndex: _index,
-                      onDestinationSelected: _go,
-                      labelType: NavigationRailLabelType.all,
-                      destinations: [
-                        for (final d in dests)
-                          NavigationRailDestination(
-                              icon: Icon(d.$1),
-                              selectedIcon: Icon(d.$2),
-                              label: Text(d.$3)),
-                      ],
+    final cs = Theme.of(context).colorScheme;
+    return Scaffold(
+      extendBody: !wide,
+      body: Row(
+        children: [
+          if (wide) ...[
+            SafeArea(
+              right: false,
+              child: NavigationRail(
+                scrollable: true,
+                leading: const Padding(
+                  padding: EdgeInsets.only(top: 8, bottom: 16),
+                  child: Tooltip(
+                    message: AppBrand.name,
+                    child: BrandMark(size: 40),
+                  ),
+                ),
+                selectedIndex: _index,
+                onDestinationSelected: _go,
+                labelType: NavigationRailLabelType.all,
+                destinations: [
+                  for (final d in dests)
+                    NavigationRailDestination(
+                      icon: Icon(d.$1),
+                      selectedIcon: Icon(d.$2),
+                      label: Text(d.$3),
                     ),
+                ],
+              ),
+            ),
+            const VerticalDivider(width: 1),
+          ],
+          Expanded(key: const ValueKey('home-pages'), child: body),
+        ],
+      ),
+      bottomNavigationBar: wide
+          ? null
+          : ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: cs.surface.withValues(alpha: 0.72),
+                    border: Border(top: BorderSide(color: cs.outlineVariant)),
+                  ),
+                  child: NavigationBar(
+                    selectedIndex: _index,
+                    onDestinationSelected: _go,
+                    destinations: [
+                      for (final d in dests)
+                        NavigationDestination(
+                            icon: Icon(d.$1),
+                            selectedIcon: Icon(d.$2),
+                            label: d.$3),
+                    ],
                   ),
                 ),
               ),
             ),
-          ),
-          const VerticalDivider(width: 1),
-          Expanded(child: body),
-        ]),
-      );
-    }
-    final cs = Theme.of(context).colorScheme;
-    return Scaffold(
-      extendBody: true,
-      body: body,
-      bottomNavigationBar: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: cs.surface.withValues(alpha: 0.72),
-              border: Border(top: BorderSide(color: cs.outlineVariant)),
-            ),
-            child: NavigationBar(
-              selectedIndex: _index,
-              onDestinationSelected: _go,
-              destinations: [
-                for (final d in dests)
-                  NavigationDestination(
-                      icon: Icon(d.$1), selectedIcon: Icon(d.$2), label: d.$3),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
